@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.titulo{
+    background-color: rgb(76, 167, 58);
+    padding: 5px;
+    border-radius: 5px;
+}
