@@ -15,6 +15,7 @@ import Recepciones from './modules/recepciones/Recepciones';
 import Selecciones from './modules/selecciones/Selecciones';
 import Embalajes from './modules/embalajes/Embalajes';
 import HojaVidaRemision from './modules/hojaVida/HojaVidaRemision';
+import GGN from './modules/ggn/GGN';
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/selecciones" element={<Selecciones />} />
                 <Route path="/embalajes" element={<Embalajes />} />
                 <Route path="/hoja-vida" element={<HojaVidaRemision />} />
+                <Route path="/ggn" element={<GGN />} />
                 {/* Add more routes for other entities */}
               </Route>
               

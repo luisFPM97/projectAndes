@@ -6,6 +6,7 @@ import Presentaciones from './Presentaciones';
 import Embarques from './Embarques';
 import TiposFrutaPresentacion from './TiposFrutaPresentacion';
 import TipoPresentaciones from './TipoPresentaciones';
+import Facturas from './Facturas';
 
 const Configuraciones = () => {
     return (
@@ -52,6 +53,14 @@ const Configuraciones = () => {
                     <h2 className="text-xl font-semibold text-gray-700">Tipos de Fruta Presentación</h2>
                     <p className="text-gray-500 mt-2">Gestionar tipos de fruta por presentación</p>
                 </Link>
+
+                <Link
+                    to="/configuraciones/facturas"
+                    className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                >
+                    <h2 className="text-xl font-semibold text-gray-700">Facturas</h2>
+                    <p className="text-gray-500 mt-2">Gestionar facturas</p>
+                </Link>
             </div>
 
             <Routes>
@@ -60,6 +69,7 @@ const Configuraciones = () => {
                 <Route path="presentaciones" element={<Presentaciones />} />
                 <Route path="embarques" element={<Embarques />} />
                 <Route path="tipos-fruta-presentacion" element={<TipoPresentaciones />} />
+                <Route path="facturas" element={<Facturas />} />
             </Routes>
         </div>
     );

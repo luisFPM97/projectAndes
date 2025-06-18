@@ -8,6 +8,7 @@ import { frutas } from '../data/frutas';
 import { recepcion } from '../data/recepcion';
 import { embalaje } from '../data/embalaje';
 import { embarque } from '../data/embarque';
+import GGN from '../modules/ggn/GGN';
 
 export const Dashboard = () => {
   const { currentUser } = useAuth();

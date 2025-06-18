@@ -22,6 +22,7 @@ export const Sidebar = () => {
     //{ name: 'Fincas', path: '/fincas', icon: <Landmark size={20} /> },
     //{ name: 'Lotes', path: '/lotes', icon: <Map size={20} /> },
     { name: 'Configuraciones', path: '/configuraciones', icon: <Bolt size={20} /> },
+    { name: 'GGN', path: '/ggn', icon: <Apple size={20} /> },
     { name: 'Certificados ICA', path: '/certificaciones', icon: <Clipboard size={20} /> },
     { name: 'Recepción', path: '/recepciones', icon: <PackageCheck size={20} /> },
     { name: 'Selección', path: '/selecciones', icon: <Package size={20} /> },
