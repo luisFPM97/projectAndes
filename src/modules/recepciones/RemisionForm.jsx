@@ -49,10 +49,12 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
     }, [formData.productorId, fincas]);
 
     useEffect(() => {
-        if (fincaId) {
+        if (formData.fincaId) {
             const lotesDeLaFinca = lotes.filter(l => l.fincaId === parseInt(formData.fincaId));
             setLotesFiltrados(lotesDeLaFinca);
-            //setFormData(prev => ({ ...prev, loteId: '' }));
+            console.log('Lotes recibidos como prop:', lotes);
+            console.log('fincaId seleccionado:', formData.fincaId);
+            console.log('Lotes filtrados para la finca:', lotesDeLaFinca);
         } else {
             setLotesFiltrados([]);
         }
@@ -134,6 +136,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log('handleChange:', name, value);
         
         const newFormData = {
             ...formData,
@@ -194,6 +197,8 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
             </div>
         );
     }
+    
+    console.log('Render: fincaId', formData.fincaId, 'lotes:', lotes);
     
     return (
         <div className="p-6">
@@ -283,7 +288,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.loteId}
                             onChange={handleChange}
                             required
-                            disabled={!formData.fincaId || !!remisionId}
+                            disabled={!formData.fincaId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione un lote</option>

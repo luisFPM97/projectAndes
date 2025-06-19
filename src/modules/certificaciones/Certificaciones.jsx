@@ -119,12 +119,6 @@ const Certificaciones = () => {
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Certificaciones</h1>
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                >
-                    + Nueva Certificación
-                </button>
             </div>
 
             {error && (

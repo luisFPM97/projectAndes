@@ -3,6 +3,7 @@ import api from "./api";
 
 export const getAllTipoPresentaciones = async () => {
     const response = await api.get('/tipopresentaciones')
+    console.log('TipoPresentaciones:', response.data);
     return response.data;
 };
 

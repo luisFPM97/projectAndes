@@ -101,6 +101,15 @@ const Embarques = () => {
         setSelectedEmbarqueId(null);
     };
 
+    function formatDateDMY(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -157,35 +166,34 @@ const Embarques = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {getSortedData().map((embarque) => (
-                                    <tr key={embarque.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {embarque.numero}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {embarque.fechaDespacho ? new Date(embarque.fechaDespacho).toLocaleDateString('es-ES', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            }) : '-'}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button
-                                                onClick={() => handleEdit(embarque.id)}
-                                                className="text-indigo-600 hover:text-indigo-900 mr-4"
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                            hidden
-                                                onClick={() => handleDelete(embarque.id)}
-                                                className="text-red-600 hover:text-red-900"
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {getSortedData().map((embarque) => {
+                                    console.log('Embarque:', embarque);
+                                    return (
+                                        <tr key={embarque.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {embarque.numero}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {formatDateDMY(embarque.fechaDespacho)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button
+                                                    onClick={() => handleEdit(embarque.id)}
+                                                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                hidden
+                                                    onClick={() => handleDelete(embarque.id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Eliminar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

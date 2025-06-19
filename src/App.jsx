@@ -16,6 +16,7 @@ import Selecciones from './modules/selecciones/Selecciones';
 import Embalajes from './modules/embalajes/Embalajes';
 import HojaVidaRemision from './modules/hojaVida/HojaVidaRemision';
 import GGN from './modules/ggn/GGN';
+import BalanceDeMasas from './modules/balance/BalanceDeMasas';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
                 <Route path="/embalajes" element={<Embalajes />} />
                 <Route path="/hoja-vida" element={<HojaVidaRemision />} />
                 <Route path="/ggn" element={<GGN />} />
+                <Route path="/balance" element={<BalanceDeMasas />} />
                 {/* Add more routes for other entities */}
               </Route>
               

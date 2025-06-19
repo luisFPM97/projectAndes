@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
   Menu, X, Home, Users, Landmark, Map, Apple, Clipboard, 
-  PackageCheck, Package, Truck, LogOut, Bolt, FileText
+  PackageCheck, Package, Truck, LogOut, Bolt, FileText, BarChart
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -27,7 +27,8 @@ export const Sidebar = () => {
     { name: 'Recepción', path: '/recepciones', icon: <PackageCheck size={20} /> },
     { name: 'Selección', path: '/selecciones', icon: <Package size={20} /> },
     { name: 'Embarque', path: '/embalajes', icon: <Truck size={20} /> },
-    { name: 'Hoja de Vida', path: '/hoja-vida', icon: <FileText size={20} /> }
+    { name: 'Hoja de Vida', path: '/hoja-vida', icon: <FileText size={20} /> },
+    { name: 'Balance de Masas', path: '/balance', icon: <BarChart size={20} /> },
   ];
 
   return (

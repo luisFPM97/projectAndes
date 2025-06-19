@@ -312,22 +312,12 @@ const Productores = () => {
                                                         <span className="text-sm font-medium">Lote {lote.numero}</span>
                                                         {lote.fruta && lote.fruta.length > 0 ? (
                                                             <div className="ml-3 flex items-center space-x-2">
-                                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                    {lote.fruta[0].nombre}
-                                                                </span>
-                                                                <div className="text-xs text-gray-500 space-x-2">
-                                                                    <span>Siembra: {new Date(lote.fruta[0].frutaLote.fechaSiembra).toLocaleDateString()}</span>
-                                                                    <span>•</span>
-                                                                    <span>Plantas: {lote.fruta[0].frutaLote.cantidadPlantas}</span>
-                                                                    <span>•</span>
-                                                                    <span className={`capitalize ${
-                                                                        lote.fruta[0].frutaLote.estado === 'activo' ? 'text-green-600' :
-                                                                        lote.fruta[0].frutaLote.estado === 'inactivo' ? 'text-red-600' :
-                                                                        'text-yellow-600'
-                                                                    }`}>
-                                                                        {lote.fruta[0].frutaLote.estado.replace('_', ' ')}
-                                                                    </span>
-                                                                </div>
+                                                                <button
+                                                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200"
+                                                                    onClick={() => handleAsignarFruta(lote)}
+                                                                >
+                                                                    Ver
+                                                                </button>
                                                             </div>
                                                         ) : (
                                                             <span className="ml-3 text-xs text-gray-500">Sin fruta asignada</span>
@@ -356,14 +346,6 @@ const Productores = () => {
                                                     >
                                                         Editar
                                                     </button>
-                                                    {
-                                                    //<button
-                                                    //    onClick={() => handleDeleteLote(lote.id)}
-                                                     //   className="text-red-500 hover:text-red-700 text-sm"
-                                                    //>
-                                                    //</div>    Eliminar
-                                                    //</div></button>
-                                                    }
                                                 </div>
                                             </div>
                                         ))}

@@ -18,10 +18,13 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
 
     useEffect(() => {
         loadRemisiones();
-        if (seleccionId) {
+    }, []);
+
+    useEffect(() => {
+        if (seleccionId && remisiones.length > 0) {
             loadSeleccion();
         }
-    }, [seleccionId]);
+    }, [seleccionId, remisiones]);
 
     const loadRemisiones = async () => {
         try {
@@ -41,15 +44,27 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
             setLoading(true);
             const seleccion = await getSeleccionById(seleccionId);
             if (seleccion) {
+                const remisionId = seleccion.SeleccionRelaciones?.[0]?.Remision?.id || '';
                 setFormData({
-                    remisionId: seleccion.SeleccionRelaciones?.Remision?.id || '',
+                    remisionId: remisionId.toString(),
+                    fechaSeleccion: seleccion.fechaSeleccion ? seleccion.fechaSeleccion.slice(0, 10) : '',
+                    magullado: seleccion.magullado,
+                    rajado: seleccion.rajado,
+                    botritis: seleccion.botritis,
+                    exportable: seleccion.exportable
+                });
+                console.log('FormData cargado al editar:', {
+                    remisionId: remisionId.toString(),
                     fechaSeleccion: seleccion.fechaSeleccion,
                     magullado: seleccion.magullado,
                     rajado: seleccion.rajado,
                     botritis: seleccion.botritis,
-                    exportable: 0
+                    exportable: seleccion.exportable
                 });
-                setRecepcionSeleccionada(seleccion.SeleccionRelaciones?.Remision);
+                setRecepcionSeleccionada(seleccion.SeleccionRelaciones?.[0]?.Remision);
+                if (remisionId) {
+                    loadRecepcion(remisionId);
+                }
             }
         } catch (error) {
             setError('Error al cargar la selección');
@@ -115,10 +130,20 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
         e.preventDefault();
         try {
             setLoading(true);
+            // Recalcular exportable antes de guardar
+            const recalculatedExportable = calcularExportable(
+                formData.magullado,
+                formData.rajado,
+                formData.botritis
+            );
+            const dataToSave = {
+                ...formData,
+                exportable: recalculatedExportable
+            };
             if (seleccionId) {
-                await updateSeleccion(seleccionId, formData);
+                await updateSeleccion(seleccionId, dataToSave);
             } else {
-                await createSeleccion(formData);
+                await createSeleccion(dataToSave);
             }
             onSave();
         } catch (err) {
@@ -166,7 +191,7 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
                             <option value="">Seleccione una remisión</option>
                             {remisiones.map(remision => (
                                 <option key={remision.id} value={remision.id}>
-                                    {`Remisión #${remision.numero} - ${remision.fechaRecepcion}`}
+                                    {`Remisión #${remision.numero}`}
                                 </option>
                             ))}
                         </select>

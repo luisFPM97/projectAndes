@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getEmbalajeById, createEmbalaje, updateEmbalaje } from '../../services/embalajeService';
+import { getAllEmbarques } from '../../services/embarqueService';
+import { getAllPresentaciones } from '../../services/presentacionService';
+import { getAllTipoPresentaciones } from '../../services/tipoPresentacionService';
+import { getAllRemisiones } from '../../services/remisionService';
 
 const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
     const [formData, setFormData] = useState({
@@ -14,12 +18,37 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [embarques, setEmbarques] = useState([]);
+    const [presentaciones, setPresentaciones] = useState([]);
+    const [tiposPresentacion, setTiposPresentacion] = useState([]);
+    const [remisiones, setRemisiones] = useState([]);
 
     useEffect(() => {
         if (embalajeId) {
             loadEmbalaje();
         }
     }, [embalajeId]);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const [embarquesData, presentacionesData, tiposPresentacionData, remisionesData] = await Promise.all([
+                    getAllEmbarques(),
+                    getAllPresentaciones(),
+                    getAllTipoPresentaciones(),
+                    getAllRemisiones()
+                ]);
+                setEmbarques(embarquesData);
+                setPresentaciones(presentacionesData);
+                setTiposPresentacion(tiposPresentacionData);
+                setRemisiones(remisionesData);
+            } catch (err) {
+                setError('Error al cargar las listas');
+                console.error('Error:', err);
+            }
+        }
+        fetchData();
+    }, []);
 
     const loadEmbalaje = async () => {
         try {
@@ -61,7 +90,7 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
                 ...formData,
                 estiba: parseInt(formData.estiba),
                 numeroDeCajas: parseInt(formData.numeroDeCajas),
-                kgEmpacado: parseFloat(formData.kgEmpacado),
+                kgEmpacado: parseFloat(kgEmpacadoCalculado),
                 embarqueId: parseInt(formData.embarqueId),
                 presentacionId: parseInt(formData.presentacionId),
                 tipoPresentacionId: parseInt(formData.tipoPresentacionId),
@@ -81,6 +110,12 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
             setLoading(false);
         }
     };
+
+    // Calcular el valor de kgEmpacado en cada render
+    const tipoSeleccionado = tiposPresentacion.find(t => t.id === parseInt(formData.tipoPresentacionId));
+    const pesoTipo = tipoSeleccionado ? parseFloat(tipoSeleccionado.kg) : 0;
+    const cajas = parseInt(formData.numeroDeCajas) || 0;
+    const kgEmpacadoCalculado = (cajas * pesoTipo).toFixed(2);
 
     if (loading) {
         return (
@@ -150,20 +185,24 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="kgEmpacado">
-                            Kilogramos Empacados
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="remisionId">
+                            Remisión
                         </label>
-                        <input
-                            type="number"
-                            id="kgEmpacado"
-                            name="kgEmpacado"
-                            value={formData.kgEmpacado}
+                        <select
+                            id="remisionId"
+                            name="remisionId"
+                            value={formData.remisionId}
                             onChange={handleChange}
-                            step="0.01"
-                            min="0"
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             required
-                        />
+                        >
+                            <option value="">Seleccione una remisión</option>
+                            {remisiones.map((remision) => (
+                                <option key={remision.id} value={remision.id}>
+                                    {remision.numero}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <div>
@@ -179,7 +218,11 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
                             required
                         >
                             <option value="">Seleccione un embarque</option>
-                            {/* Aquí deberías cargar los embarques desde la API */}
+                            {embarques.map((embarque) => (
+                                <option key={embarque.id} value={embarque.id}>
+                                    {embarque.numero}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -196,7 +239,11 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
                             required
                         >
                             <option value="">Seleccione una presentación</option>
-                            {/* Aquí deberías cargar las presentaciones desde la API */}
+                            {presentaciones.map((presentacion) => (
+                                <option key={presentacion.id} value={presentacion.id}>
+                                    {presentacion.nombre}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
@@ -213,25 +260,29 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
                             required
                         >
                             <option value="">Seleccione un tipo</option>
-                            {/* Aquí deberías cargar los tipos de presentación desde la API */}
+                            {tiposPresentacion.map((tipo) => (
+                                <option key={tipo.id} value={tipo.id}>
+                                    {tipo.nombre}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="remisionId">
-                            Remisión
+                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="kgEmpacado">
+                            Kilogramos Empacados
                         </label>
-                        <select
-                            id="remisionId"
-                            name="remisionId"
-                            value={formData.remisionId}
-                            onChange={handleChange}
+                        <input
+                            type="number"
+                            id="kgEmpacado"
+                            name="kgEmpacado"
+                            value={kgEmpacadoCalculado}
+                            step="0.01"
+                            min="0"
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             required
-                        >
-                            <option value="">Seleccione una remisión</option>
-                            {/* Aquí deberías cargar las remisiones desde la API */}
-                        </select>
+                            disabled
+                        />
                     </div>
                 </div>
 

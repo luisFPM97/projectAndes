@@ -1,8 +1,12 @@
 import  { api, create, getAll, getById, update, remove } from './api';
 
-// Obtener todas las remisiones
-export const getAllRemisiones = async () => {
-    const response = await api.get('/remisiones');
+// Obtener todas las remisiones (con filtro de fechas opcional)
+export const getAllRemisiones = async (startDate, endDate) => {
+    let url = '/remisiones';
+    if (startDate && endDate) {
+        url += `?fechaInicio=${startDate}&fechaFin=${endDate}`;
+    }
+    const response = await api.get(url);
     return response.data;
 };
 

@@ -24,10 +24,24 @@ const Recepciones = () => {
         key: 'numero',
         direction: 'asc'
     });
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [filteredRemisiones, setFilteredRemisiones] = useState([]);
+    const [secondaryErrors, setSecondaryErrors] = useState([]);
 
     useEffect(() => {
         loadData();
     }, []);
+
+    useEffect(() => {
+        // Si no hay fechas seleccionadas, mostrar todas las remisiones
+        if (!startDate && !endDate) {
+            setFilteredRemisiones(remisiones);
+        } else {
+            // Si hay fechas seleccionadas, mantener el filtro actual
+            handleDateFilter();
+        }
+    }, [remisiones]);
 
     const loadData = async () => {
         try {
@@ -49,7 +63,7 @@ const Recepciones = () => {
                 getAllTipofrutas()
             ]);
             setRemisiones(remisionesData);
-            console.log(remisionesData)
+            console.log('Remisiones cargadas:', remisionesData);
             setProductores(productoresData);
             setFincas(fincasData);
             setLotes(lotesData);
@@ -102,13 +116,41 @@ const Recepciones = () => {
         setSearchTerm(e.target.value);
     };
 
-    const getSortedAndFilteredRemisiones = () => {
-        let filteredRemisiones = remisiones;
+    const handleStartDateChange = (e) => {
+        setStartDate(e.target.value);
+    };
 
+    const handleEndDateChange = (e) => {
+        setEndDate(e.target.value);
+    };
+
+    const handleDateFilter = () => {
+        let result = remisiones;
+        if (!startDate && !endDate) {
+            setFilteredRemisiones(remisiones);
+            return;
+        }
+        if (startDate) {
+            result = result.filter(remision => {
+                const fechaRecepcion = new Date(remision.fechaRecepcion);
+                return fechaRecepcion >= new Date(startDate);
+            });
+        }
+        if (endDate) {
+            result = result.filter(remision => {
+                const fechaRecepcion = new Date(remision.fechaRecepcion);
+                return fechaRecepcion <= new Date(endDate);
+            });
+        }
+        setFilteredRemisiones(result);
+    };
+
+    const getSortedAndFilteredRemisiones = () => {
+        let filtered = filteredRemisiones;
         // Aplicar filtro de búsqueda
         if (searchTerm) {
             const searchLower = searchTerm.toLowerCase();
-            filteredRemisiones = remisiones.filter(remision => 
+            filtered = filtered.filter(remision => 
                 remision.numero.toLowerCase().includes(searchLower) ||
                 remision.Productor?.nombre.toLowerCase().includes(searchLower) ||
                 remision.Finca?.nombre.toLowerCase().includes(searchLower) ||
@@ -117,11 +159,9 @@ const Recepciones = () => {
                 remision.Tipofruta?.nombre.toLowerCase().includes(searchLower)
             );
         }
-
         // Aplicar ordenamiento
-        return [...filteredRemisiones].sort((a, b) => {
+        return [...filtered].sort((a, b) => {
             if (sortConfig.key === 'numero') {
-                // Convertir los números de remisión a enteros para ordenar correctamente
                 const numA = parseInt(a.numero);
                 const numB = parseInt(b.numero);
                 return sortConfig.direction === 'asc' ? numA - numB : numB - numA;
@@ -142,6 +182,8 @@ const Recepciones = () => {
         );
     }
 
+    console.log('Remisiones filtradas/render:', filteredRemisiones);
+
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
@@ -160,6 +202,16 @@ const Recepciones = () => {
                 </div>
             )}
 
+            {secondaryErrors.length > 0 && (
+                <div className="mb-4">
+                    {secondaryErrors.map((errMsg, idx) => (
+                        <div key={idx} className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-2 rounded mb-1 text-sm">
+                            {errMsg}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             <div className="mb-4">
                 <input
                     type="text"
@@ -168,6 +220,30 @@ const Recepciones = () => {
                     onChange={handleSearch}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+            </div>
+
+            {/* Inputs de fecha y botón Filtrar justo debajo del input de búsqueda */}
+            <div className="mb-4 flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                <input
+                    type="date"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Fecha inicio"
+                />
+                <input
+                    type="date"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Fecha fin"
+                />
+                <button
+                    onClick={handleDateFilter}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Filtrar
+                </button>
             </div>
 
             <div className="bg-white shadow-md rounded-lg overflow-x-scroll">

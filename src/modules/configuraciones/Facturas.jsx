@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FacturaForm from './FacturaForm';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { getAllFacturas } from '../../services/facturaService';
+import api from '../../config/axios';
 
 const Facturas = () => {
     const [facturas, setFacturas] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const [selectedFacturaId, setSelectedFacturaId] = useState(null);
+    const [selectedFactura, setSelectedFactura] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const fetchFacturas = async () => {
+        try {
+            setLoading(true);
+            const data = await getAllFacturas();
+            setFacturas(data);
+        } catch (err) {
+            setError('Error al cargar las facturas');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchFacturas();
+    }, []);
 
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -36,19 +55,61 @@ const Facturas = () => {
             sortedFacturas = sortedFacturas.filter(factura =>
                 factura.numero.includes(searchTerm) ||
                 (factura.descripcion && factura.descripcion.includes(searchTerm)) ||
-                (factura.embarque && factura.embarque.includes(searchTerm))
+                (factura.embarque && factura.embarque.numero && factura.embarque.numero.includes(searchTerm))
             );
         }
 
         return sortedFacturas;
     };
 
-    const handleSave = (factura) => {
-        // Implementa la lógica para guardar la factura
+    const handleSave = async (form) => {
+        try {
+            setLoading(true);
+            if (selectedFactura) {
+                // Editar
+                await api.put(`/facturas/${selectedFactura.id}`, {
+                    numero: form.numero,
+                    descripcion: form.descripcion,
+                    embarqueId: form.embarqueId
+                });
+            } else {
+                // Crear
+                await api.post('/facturas', {
+                    numero: form.numero,
+                    descripcion: form.descripcion,
+                    embarqueId: form.embarqueId
+                });
+            }
+            setShowForm(false);
+            setSelectedFactura(null);
+            await fetchFacturas();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Error al guardar la factura');
+            console.error('Error al crear factura:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleDelete = (id) => {
-        // Implementa la lógica para eliminar la factura
+    const handleEdit = (factura) => {
+        setSelectedFactura({
+            ...factura,
+            embarqueId: factura.embarqueId || factura.embarque?.id || ''
+        });
+        setShowForm(true);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('¿Está seguro de que desea eliminar esta factura?')) return;
+        try {
+            setLoading(true);
+            await api.delete(`/facturas/${id}`);
+            await fetchFacturas();
+        } catch (err) {
+            setError('Error al eliminar la factura');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -57,7 +118,7 @@ const Facturas = () => {
                 <CardHeader className="flex justify-between items-center mb-6">
                     <CardTitle>Facturas</CardTitle>
                     <button
-                        onClick={() => setShowForm(true)}
+                        onClick={() => { setShowForm(true); setSelectedFactura(null); }}
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     >
                         + Nueva Factura
@@ -119,14 +180,11 @@ const Facturas = () => {
                                                     {factura.descripcion}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    {factura.embarque}
+                                                    {factura.embarque?.numero}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <button
-                                                        onClick={() => {
-                                                            setSelectedFacturaId(factura.id);
-                                                            setShowForm(true);
-                                                        }}
+                                                        onClick={() => handleEdit(factura)}
                                                         className="text-blue-500 hover:text-blue-700 mr-4"
                                                     >
                                                         Editar
@@ -152,11 +210,11 @@ const Facturas = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4">
                         <FacturaForm
-                            facturaId={selectedFacturaId}
+                            factura={selectedFactura}
                             onSave={handleSave}
                             onCancel={() => {
                                 setShowForm(false);
-                                setSelectedFacturaId(null);
+                                setSelectedFactura(null);
                             }}
                         />
                     </div>
