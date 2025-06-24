@@ -3,17 +3,20 @@ import { getAll, remove } from '../../services/productorService';
 import { getAllFincas, deleteFinca } from '../../services/fincaService';
 import { getAllLotes, deleteLote } from '../../services/loteService';
 import { getAllCerticas, deleteCertica } from '../../services/certicaService';
+import { getAllGGNs } from '../../services/ggnService';
 import ProductorForm from './ProductorForm';
 import FincaForm from './FincaForm';
 import LoteForm from './LoteForm';
 import AsignarFrutaForm from '../frutas/AsignarFrutaForm';
 import CerticaForm from '../certificaciones/CerticaForm';
+import GGNForm from './GGNForm';
 
 const Productores = () => {
     const [productores, setProductores] = useState([]);
     const [fincas, setFincas] = useState([]);
     const [lotes, setLotes] = useState([]);
     const [certificaciones, setCertificaciones] = useState([]);
+    const [ggns, setGGNs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
@@ -21,10 +24,12 @@ const Productores = () => {
     const [showLoteForm, setShowLoteForm] = useState(false);
     const [showAsignarFrutaForm, setShowAsignarFrutaForm] = useState(false);
     const [showCerticaForm, setShowCerticaForm] = useState(false);
+    const [showGGNForm, setShowGGNForm] = useState(false);
     const [selectedProductorId, setSelectedProductorId] = useState(null);
     const [selectedFincaId, setSelectedFincaId] = useState(null);
     const [selectedLoteId, setSelectedLoteId] = useState(null);
     const [selectedCerticaId, setSelectedCerticaId] = useState(null);
+    const [selectedGGNId, setSelectedGGNId] = useState(null);
     const [showDetalle, setShowDetalle] = useState(false);
     const [selectedProductor, setSelectedProductor] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -41,16 +46,18 @@ const Productores = () => {
     const loadData = async () => {
         try {
             setLoading(true);
-            const [productoresData, fincasData, lotesData, certificacionesData] = await Promise.all([
+            const [productoresData, fincasData, lotesData, certificacionesData, ggnsData] = await Promise.all([
                 getAll(),
                 getAllFincas(),
                 getAllLotes(),
-                getAllCerticas()
+                getAllCerticas(),
+                getAllGGNs()
             ]);
             setProductores(productoresData);
             setFincas(fincasData);
             setLotes(lotesData);
             setCertificaciones(certificacionesData);
+            setGGNs(ggnsData);
         } catch (err) {
             setError('Error al cargar los datos');
             console.error('Error:', err);
@@ -154,11 +161,18 @@ const Productores = () => {
         await loadData();
     };
 
+    const handleGGNSave = async () => {
+        setShowGGNForm(false);
+        setSelectedGGNId(null);
+        await loadData();
+    };
+
     const getFincasByProductor = (productorId) => {
         return fincas.filter(finca => finca.productorId === productorId);
     };
 
     const getLotesByFinca = (fincaId) => {
+        console.log(lotes.filter(lote => lote.fincaId === fincaId))
         return lotes.filter(lote => lote.fincaId === fincaId);
     };
 
@@ -166,9 +180,14 @@ const Productores = () => {
         return certificaciones.filter(certica => certica.fincaId === fincaId);
     };
 
+    const getGGNsByProductor = (productorId) => {
+        return ggns.filter(ggn => ggn.productorId === productorId);
+    };
+
     const handleVerDetalle = (productor) => {
         setSelectedProductor(productor);
         setShowDetalle(true);
+        console.log(productor)
     };
 
     const handleSort = (key) => {
@@ -229,17 +248,15 @@ const Productores = () => {
                         <h1 className="text-2xl font-bold">Detalle del Productor</h1>
                     </div>
                     <div className="flex space-x-4">
-                        {
-                        //    <button
-                        //    onClick={() => {
-                        //        setSelectedProductorId(selectedProductor.id);
-                        //        setShowForm(true);
-                        //    }}
-                        //    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        //>
-                        //    Editar Productor
-                        //</button>
-                        }
+                        <button
+                            onClick={() => {
+                                setSelectedProductorId(selectedProductor.id);
+                                setShowGGNForm(true);
+                            }}
+                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                        >
+                            + Nuevo GGN
+                        </button>
                         <button
                             onClick={() => {
                                 setSelectedProductorId(selectedProductor.id);
@@ -252,12 +269,14 @@ const Productores = () => {
                     </div>
                 </div>
 
+                
+
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 className="text-xl font-bold mb-4">{selectedProductor.nombre}</h2>
                     <p className="text-gray-600">Código: {selectedProductor.codigo}</p>
                 </div>
 
-                <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6 ">
                     <h3 className="text-lg font-bold mb-4">Fincas</h3>
                     <div className="space-y-4">
                         {getFincasByProductor(selectedProductor.id).map(finca => (
@@ -309,9 +328,10 @@ const Productores = () => {
                                             <div key={lote.id} className="bg-white p-2 rounded flex justify-between items-center">
                                                 <div className="flex items-center space-x-4">
                                                     <div className="flex items-center">
-                                                        <span className="text-sm font-medium">Lote {lote.numero}</span>
-                                                        {lote.fruta && lote.fruta.length > 0 ? (
+                                                        <span className="text-sm font-medium">Lote {lote.numero}{lote.frutaLote?.frutum?.nombre}</span>
+                                                        {lote.frutaLote  ? (
                                                             <div className="ml-3 flex items-center space-x-2">
+                                                                <span className="text-xs text-gray-700">{lote.frutaLote?.frutum?.nombre}</span>
                                                                 <button
                                                                     className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200"
                                                                     onClick={() => handleAsignarFruta(lote)}
@@ -328,12 +348,12 @@ const Productores = () => {
                                                     <button
                                                         onClick={() => handleAsignarFruta(lote)}
                                                         className={`text-sm px-3 py-1 rounded ${
-                                                            lote.fruta && lote.fruta.length > 0
+                                                            lote.fruta && lote.frutaLote?.length > 0
                                                                 ? 'text-blue-500 hover:text-blue-700 border border-blue-500 hover:border-blue-700' 
                                                                 : 'text-green-500 hover:text-green-700 border border-green-500 hover:border-green-700'
                                                         }`}
                                                     >
-                                                        {lote.fruta && lote.fruta.length > 0 ? 'Cambiar Fruta' : 'Asignar Fruta'}
+                                                        {lote.frutaLote && lote.frutaLote.length > 0 ? 'Cambiar Fruta' : 'Asignar Fruta'}
                                                     </button>
                                                     <button
                                                     hidden
@@ -418,8 +438,35 @@ const Productores = () => {
                         ))}
                     </div>
                 </div>
+                
+                {/* Sección de GGNs del Productor */}
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h3 className="text-lg font-bold mb-4">GGN</h3>
+                    <div className="space-y-2">
+                        {getGGNsByProductor(selectedProductor.id).map(ggn => (
+                            <div key={ggn.id} className="bg-white p-2 rounded flex justify-between items-center">
+                                <div className="flex items-center space-x-4">
+                                    <span className="text-sm font-medium">GGN {ggn.numero}</span>
+                                    <div className="text-xs text-gray-500 space-x-2">
+                                        <span>Emisión: {new Date(ggn.fechaEmision).toLocaleDateString()}</span>
+                                        <span>•</span>
+                                        <span>Vencimiento: {new Date(ggn.fechaVencimiento).toLocaleDateString()}</span>
+                                        <span>•</span>
+                                        <span className={`capitalize ${
+                                            new Date(ggn.fechaVencimiento) > new Date()
+                                                ? 'text-green-600'
+                                                : 'text-red-600'
+                                        }`}>
+                                            {new Date(ggn.fechaVencimiento) > new Date() ? 'Vigente' : 'Vencido'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-                {(showForm || showFincaForm || showLoteForm || showAsignarFrutaForm || showCerticaForm) && (
+                {(showForm || showFincaForm || showLoteForm || showAsignarFrutaForm || showCerticaForm || showGGNForm) && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
                             {showForm && (
@@ -472,6 +519,17 @@ const Productores = () => {
                                     onCancel={() => {
                                         setShowCerticaForm(false);
                                         setSelectedCerticaId(null);
+                                    }}
+                                />
+                            )}
+                            {showGGNForm && (
+                                <GGNForm
+                                    ggnId={selectedGGNId}
+                                    productorId={selectedProductorId}
+                                    onSave={handleGGNSave}
+                                    onCancel={() => {
+                                        setShowGGNForm(false);
+                                        setSelectedGGNId(null);
                                     }}
                                 />
                             )}
@@ -577,7 +635,7 @@ const Productores = () => {
                 </table>
             </div>
 
-            {(showForm || showFincaForm || showLoteForm || showAsignarFrutaForm || showCerticaForm) && (
+            {(showForm || showFincaForm || showLoteForm || showAsignarFrutaForm || showCerticaForm || showGGNForm) && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
                         {showForm && (
@@ -630,6 +688,17 @@ const Productores = () => {
                                 onCancel={() => {
                                     setShowCerticaForm(false);
                                     setSelectedCerticaId(null);
+                                }}
+                            />
+                        )}
+                        {showGGNForm && (
+                            <GGNForm
+                                ggnId={selectedGGNId}
+                                productorId={selectedProductorId}
+                                onSave={handleGGNSave}
+                                onCancel={() => {
+                                    setShowGGNForm(false);
+                                    setSelectedGGNId(null);
                                 }}
                             />
                         )}

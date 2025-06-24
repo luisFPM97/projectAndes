@@ -6,7 +6,7 @@ export const DashboardLayout = () => {
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       
-      <main className="flex-1 p-4 lg:p-8 overflow-y-auto ml-0 lg:ml-64">
+      <main className="flex-1 p-2 lg:p-0 overflow-y-auto ml-0 lg:ml-32">
         <div className="container mx-auto">
           <Outlet />
         </div>

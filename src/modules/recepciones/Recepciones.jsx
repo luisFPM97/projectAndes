@@ -152,11 +152,11 @@ const Recepciones = () => {
             const searchLower = searchTerm.toLowerCase();
             filtered = filtered.filter(remision => 
                 remision.numero.toLowerCase().includes(searchLower) ||
-                remision.Productor?.nombre.toLowerCase().includes(searchLower) ||
-                remision.Finca?.nombre.toLowerCase().includes(searchLower) ||
-                remision.Lote?.numero.toString().includes(searchLower) ||
-                remision.Certica?.numero.toLowerCase().includes(searchLower) ||
-                remision.Tipofruta?.nombre.toLowerCase().includes(searchLower)
+                remision.RemisionRelaciones[0]?.productor?.nombre.toLowerCase().includes(searchLower) ||
+                remision.RemisionRelaciones[0]?.finca?.nombre.toLowerCase().includes(searchLower) ||
+                remision.RemisionRelaciones[0]?.lote?.numero.toString().includes(searchLower) ||
+                remision.RemisionRelaciones[0]?.Certica?.numero.toLowerCase().includes(searchLower) ||
+                remision.RemisionRelaciones[0]?.Tipofrutum?.nombre.toLowerCase().includes(searchLower)
             );
         }
         // Aplicar ordenamiento

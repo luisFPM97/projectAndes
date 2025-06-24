@@ -25,7 +25,7 @@ function App() {
         <div className="min-h-screen bg-gray-100">
           
 
-          <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <main className="max-w-7xl mx-auto py-6 sm:px-4 lg:px-0">
             <Routes>
               <Route path="/login" element={<Login />} />
               

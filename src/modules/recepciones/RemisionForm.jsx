@@ -136,12 +136,30 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log('handleChange:', name, value);
-        
-        const newFormData = {
+        let newFormData = {
             ...formData,
             [name]: value
         };
+
+        // Si cambia el número de canastas, recalcula el peso de canastas y el peso bruto
+        if (name === 'numeroCanastas') {
+            const numeroCanastas = parseFloat(value) || 0;
+            const netoCanastas = +(numeroCanastas * 1.8).toFixed(2);
+            const netoFrutaKg = parseFloat(formData.netoFrutaKg) || 0;
+            const brutoKg = +(netoFrutaKg + netoCanastas).toFixed(2);
+
+            newFormData.netoCanastas = netoCanastas;
+            newFormData.brutoKg = brutoKg;
+        }
+
+        // Si cambia el peso neto de fruta, recalcula el peso bruto
+        if (name === 'netoFrutaKg') {
+            const netoFrutaKg = parseFloat(value) || 0;
+            const netoCanastas = parseFloat(formData.netoCanastas) || 0;
+            const brutoKg = +(netoFrutaKg + netoCanastas).toFixed(2);
+
+            newFormData.brutoKg = brutoKg;
+        }
 
         // Si se modifican los campos que afectan la trazabilidad, recalcular
         if (['productorId', 'fincaId', 'loteId', 'fechaCosecha'].includes(name)) {
@@ -352,7 +370,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.fechaCosecha}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -367,7 +385,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.fechaRecepcion}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -382,7 +400,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.numeroCanastas}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>

@@ -1,7 +1,7 @@
 import api from '../config/axios';
 
 // Asegúrate de que esta URL coincida con la URL de tu servidor backend
-const API_URL = 'http://localhost:5000/api';
+
 
 // Configuración global de axios
 api.defaults.timeout = 5000; // 5 segundos de timeout

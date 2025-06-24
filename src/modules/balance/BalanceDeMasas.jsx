@@ -99,6 +99,8 @@ const BalanceDeMasas = () => {
                             <th className="px-4 py-2">Especie</th>
                             {/* <th className="px-4 py-2">Municipio</th> */}
                             <th className="px-4 py-2">Predio</th>
+                            <th className="px-4 py-2">Registro ICA</th>
+                            <th className="px-4 py-2">GGN</th>
                             <th className="px-4 py-2">Código</th>
                             <th className="px-4 py-2">Trazabilidad</th>
                             <th className="px-4 py-2">Canastas</th>
@@ -109,12 +111,16 @@ const BalanceDeMasas = () => {
                             <th className="px-4 py-2">Kg Magullada</th>
                             <th className="px-4 py-2">Kg Rajado</th>
                             <th className="px-4 py-2">Kg Botritis</th>
+                            <th className="px-4 py-2">Kg Exportable</th>
                             <th className="px-4 py-2">% Pérdida</th>
                             <th className="px-4 py-2">Cajas Exportar</th>
+                            <th className="px-4 py-2">Presentación</th>
                             <th className="px-4 py-2">Cajas 12*100</th>
                             <th className="px-4 py-2">Kg 12*100</th>
                             <th className="px-4 py-2">Cajas Granel</th>
                             <th className="px-4 py-2">Kg Granel</th>
+                            <th className="px-4 py-2">Cajas Gulupa</th>
+                            <th className="px-4 py-2">Kg Gulupa</th>
                             <th className="px-4 py-2">Factura</th>
                             <th className="px-4 py-2">Embarque</th>
                         </tr>
@@ -133,7 +139,7 @@ const BalanceDeMasas = () => {
                                                 console.log('Embalaje:', emb);
                                             }
                                             return (
-                                                <tr key={emb.id} className="bg-white border-t border-b">
+                                                <tr key={emb.id} className={`border border-black/20 ${row.RemisionRelaciones[0]?.productor?.GGNs?.length > 0 ? 'bg-green-100' : ''}`}>
                                                     {/* Solo en la primera subfila, renderizar las celdas generales con rowspan */}
                                                     {embIdx === 0 && (
                                                         <>
@@ -141,9 +147,11 @@ const BalanceDeMasas = () => {
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.numero}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.registroAplicacion}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones?.[0]?.productor?.nombre || ''}</td>
-                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones?.[0]?.fruta?.nombre || ''}</td>
+                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones[0]?.lote?.frutaLote?.frutum?.nombre || ''}</td>
                                                             {/* <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones?.[0]?.finca?.municipio || ''}</td> */}
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones?.[0]?.finca?.nombre || ''}</td>
+                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones[0]?.Certica?.numero}</td>
+                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones[0]?.productor?.GGNs[0]?.numero || ''}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones?.[0]?.finca?.codigo || ''}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.RemisionRelaciones?.[0]?.Trazabilidad?.numero || ''}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.numeroCanastas}</td>
@@ -154,32 +162,53 @@ const BalanceDeMasas = () => {
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.SeleccionRelacione?.Seleccion?.magullado || ''}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.SeleccionRelacione?.Seleccion?.rajado || ''}</td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{row.SeleccionRelacione?.Seleccion?.botritis || ''}</td>
-                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{(() => { const magullado = parseFloat(row.SeleccionRelacione?.Seleccion?.magullado) || 0; const rajado = parseFloat(row.SeleccionRelacione?.Seleccion?.rajado) || 0; const botritis = parseFloat(row.SeleccionRelacione?.Seleccion?.botritis) || 0; const neto = parseFloat(row.netoFrutaKg) || 0; if (neto === 0) return ''; return (((magullado + rajado + botritis) / neto) * 100).toFixed(2) + '%'; })()}</td>
+                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{row.SeleccionRelacione?.Seleccion?.exportable || ''}</td>
+                                                            <td className="px-4 py-2" rowSpan={rowSpan}>{(() => { 
+                                                                                                                    const magullado = parseFloat(row.SeleccionRelacione?.Seleccion?.magullado) || 0; 
+                                                                                                                    const rajado = parseFloat(row.SeleccionRelacione?.Seleccion?.rajado) || 0; 
+                                                                                                                    const botritis = parseFloat(row.SeleccionRelacione?.Seleccion?.botritis) || 0; 
+                                                                                                                    const exportable = parseFloat(row.SeleccionRelacione?.Seleccion?.exportable) || 0;
+                                                                                                                    const seleccion = magullado + rajado + botritis + exportable;
+                                                                                                                    const neto = parseFloat(row.netoFrutaKg) || 0; 
+                                                                                                                    const perdidaseleccion = (((neto - seleccion) / neto) * 100).toFixed(2);
+
+                                                                                                                    const sumaKilosEmpacados = row.embalajes?.reduce((sum, e) => sum + parseFloat(e.kgEmpacado || 0), 0) || 0;
+                                                                                                                    const perdidaEmbalaje = (((exportable - sumaKilosEmpacados)/ neto)* 100).toFixed(2)
+                                                                                                                    if (neto === 0) return ''; 
+                                                                                                                    return (parseFloat(perdidaseleccion) + parseFloat(perdidaEmbalaje)).toFixed(2) + '%'; 
+                                                                                                                }
+                                                                                                          )()}
+                                                            </td>
                                                             <td className="px-4 py-2" rowSpan={rowSpan}>{embalajes.reduce((acc, emb) => acc + (parseInt(emb.numeroDeCajas) || 0), 0)}</td>
                                                         </>
                                                     )}
                                                     {/* Subfila: solo datos de embalaje */}
-                                                    <td className="px-4 py-2">{emb.tipoPresentacion?.nombre === '12*100' ? emb.numeroDeCajas : 0}</td>
-                                                    <td className="px-4 py-2">{emb.tipoPresentacion?.nombre === '12*100' ? emb.kgEmpacado : 0}</td>
-                                                    <td className="px-4 py-2">{emb.tipoPresentacion?.nombre === 'GRANEL' ? emb.numeroDeCajas : 0}</td>
-                                                    <td className="px-4 py-2">{emb.tipoPresentacion?.nombre === 'GRANEL' ? emb.kgEmpacado : 0}</td>
-                                                    <td className="px-4 py-2">{emb.embarque?.Factura?.numero || 'Sin factura'}</td>
-                                                    <td className="px-4 py-2">{emb.embarque?.numero || ''}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.presentacion?.nombre || ''}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === '12 x 100' ? emb.numeroDeCajas : 0}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === '12 x 100' ? emb.kgEmpacado : 0}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'GRANEL' ? emb.numeroDeCajas : 0}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'GRANEL' ? emb.kgEmpacado : 0}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'G-CON' ? emb.numeroDeCajas : 0}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'G-CON' ? emb.kgEmpacado : 0}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.embarque?.Facturas[0]?.numero || 'Sin factura'}</td>
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.embarque?.numero || ''}</td>
                                                 </tr>
                                             );
                                         })
                                     ) : (
                                         // Si no hay embalajes, una sola fila normal
-                                        <tr className="bg-white">
+                                        <tr className={`border border-black/20 ${row.RemisionRelaciones[0]?.productor?.GGNs?.length > 0 ? 'bg-green-100' : ''}`}>
                                             <td className="px-4 py-2">{row.fechaRecepcion ? new Date(row.fechaRecepcion).toLocaleDateString() : ''}</td>
                                             <td className="px-4 py-2">{row.numero}</td>
                                             <td className="px-4 py-2">{row.registroAplicacion}</td>
-                                            <td className="px-4 py-2">{row.RemisionRelaciones?.[0]?.productor?.nombre || ''}</td>
-                                            <td className="px-4 py-2">{row.RemisionRelaciones?.[0]?.fruta?.nombre || ''}</td>
+                                            <td className="px-4 py-2">{row.RemisionRelaciones[0]?.productor?.nombre || ''}</td>
+                                            <td className="px-4 py-2">{row.RemisionRelaciones[0]?.lote?.frutaLote?.frutum?.nombre || ''}</td>
                                             {/* <td className="px-4 py-2">{row.RemisionRelaciones?.[0]?.finca?.municipio || ''}</td> */}
-                                            <td className="px-4 py-2">{row.RemisionRelaciones?.[0]?.finca?.nombre || ''}</td>
-                                            <td className="px-4 py-2">{row.RemisionRelaciones?.[0]?.finca?.codigo || ''}</td>
-                                            <td className="px-4 py-2">{row.RemisionRelaciones?.[0]?.Trazabilidad?.numero || ''}</td>
+                                            <td className="px-4 py-2">{row.RemisionRelaciones[0]?.finca?.nombre || ''}</td>
+                                            <td className="px-4 py-2" rowSpan={rowSpan}> Acá Registro ICA</td>
+                                            <td className="px-4 py-2" rowSpan={rowSpan}>Acá GGN</td>
+                                            <td className="px-4 py-2">{row.RemisionRelaciones[0]?.finca?.codigo || ''}</td>
+                                            <td className="px-4 py-2">{row.RemisionRelaciones[0]?.Trazabilidad?.numero || ''}</td>
                                             <td className="px-4 py-2">{row.numeroCanastas}</td>
                                             <td className="px-4 py-2">{row.brutoKg}</td>
                                             <td className="px-4 py-2">{row.netoFrutaKg}</td>
@@ -188,6 +217,7 @@ const BalanceDeMasas = () => {
                                             <td className="px-4 py-2">{row.SeleccionRelacione?.Seleccion?.magullado || ''}</td>
                                             <td className="px-4 py-2">{row.SeleccionRelacione?.Seleccion?.rajado || ''}</td>
                                             <td className="px-4 py-2">{row.SeleccionRelacione?.Seleccion?.botritis || ''}</td>
+                                            <td className="px-4 py-2" rowSpan={rowSpan}>{row.SeleccionRelacione?.Seleccion?.exportable || ''}</td>
                                             <td className="px-4 py-2">{(() => { const magullado = parseFloat(row.SeleccionRelacione?.Seleccion?.magullado) || 0; const rajado = parseFloat(row.SeleccionRelacione?.Seleccion?.rajado) || 0; const botritis = parseFloat(row.SeleccionRelacione?.Seleccion?.botritis) || 0; const neto = parseFloat(row.netoFrutaKg) || 0; if (neto === 0) return ''; return (((magullado + rajado + botritis) / neto) * 100).toFixed(2) + '%'; })()}</td>
                                             <td className="px-4 py-2">{embalajes.reduce((acc, emb) => acc + (parseInt(emb.numeroDeCajas) || 0), 0)}</td>
                                             <td className="px-4 py-2"></td>

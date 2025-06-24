@@ -9,6 +9,7 @@ const AsignarFrutaForm = ({ lote, onSave, onCancel }) => {
         estado: 'activo',
         observaciones: ''
     });
+    
     const [frutas, setFrutas] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

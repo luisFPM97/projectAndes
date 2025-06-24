@@ -12,7 +12,7 @@ export const getFrutaById = async (id) => {
 };
 
 export const createFruta = async (data) => {
-    const response = await api.post('/frutas', { nombre: data.nombre });
+    const response = await api.post('/frutas', data);
     return response.data;
 };
 
