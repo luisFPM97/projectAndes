@@ -15,24 +15,39 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontWeight: 'bold',
     },
-    subtitle: {
-        fontSize: 14,
-        marginBottom: 5,
-        fontWeight: 'bold',
+    twoColumns: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+        gap: 20,
+    },
+    column: {
+        flex: 1,
+        marginRight: 10,
+    },
+    columnRight: {
+        flex: 1,
+        marginLeft: 10,
     },
     section: {
-        marginBottom: 15,
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        marginBottom: 8,
+        fontWeight: 'bold',
+        color: '#222',
     },
     row: {
         flexDirection: 'row',
-        marginBottom: 5,
+        marginBottom: 4,
     },
     label: {
-        width: '40%',
+        width: '45%',
         fontWeight: 'bold',
     },
     value: {
-        width: '60%',
+        width: '55%',
     },
     table: {
         marginTop: 10,
@@ -57,17 +72,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f0f0',
         fontWeight: 'bold',
     },
-    sectionTitle: {
-        fontSize: 14,
-        marginBottom: 5,
-        fontWeight: 'bold',
-    },
-    sectionContent: {
-        marginBottom: 10,
-    },
 });
 
 const formatDate = (dateString) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
         year: 'numeric',
@@ -78,7 +86,7 @@ const formatDate = (dateString) => {
 
 const HojaVidaPDF = ({ remision }) => {
     const remisionRelacion = remision.RemisionRelaciones?.[0];
-
+    console.log(remision)
     // Cálculos igual que en el HTML
     const totalEmpacado = (
         parseFloat(remision?.SeleccionRelacione?.Seleccion?.exportable || 0) +
@@ -104,144 +112,164 @@ const HojaVidaPDF = ({ remision }) => {
                     <Text>Número: {remision.numero}</Text>
                 </View>
 
-                {/* Sección de Recepción */}
-                <View style={styles.section}>
-                    <Text style={styles.subtitle}>Recepción</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Productor:</Text>
-                        <Text style={styles.value}>{remisionRelacion?.productor?.nombre}</Text>
+                {/* Dos columnas para los datos principales */}
+                <View style={styles.twoColumns}>
+                    {/* Columna Izquierda: Recepción y Selección */}
+                    <View style={styles.column}>
+                        {/* Sección de Recepción */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Recepción</Text>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Fecha de Selección:</Text>
+                                <Text style={styles.value}>{formatDate(remision.fechaCosecha)}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Productor:</Text>
+                                <Text style={styles.value}>{remisionRelacion?.productor?.nombre}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Finca:</Text>
+                                <Text style={styles.value}>{remisionRelacion?.finca?.nombre}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Lote:</Text>
+                                <Text style={styles.value}>{remisionRelacion?.lote?.numero}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Registro de Aplicación:</Text>
+                                <Text style={styles.value}>{remision.registroAplicacion}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Tipo de Fruta:</Text>
+                                <Text style={styles.value}>{remisionRelacion?.Tipofrutum?.nombre}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Registro ICA:</Text>
+                                <Text style={styles.value}>{remisionRelacion?.Certica?.numero}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Global G.AP:</Text>
+                                <Text style={styles.value}>{remisionRelacion?.productor?.GGNs?.[0]?.numero || ''}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Bruto (kg):</Text>
+                                <Text style={styles.value}>{parseFloat(remision.brutoKg).toFixed(2)} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Neto Canastas:</Text>
+                                <Text style={styles.value}>{parseFloat(remision.netoCanastas).toFixed(2)} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Número de Canastas:</Text>
+                                <Text style={styles.value}>{remision.numeroCanastas}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Devolución en Puerta:</Text>
+                                <Text style={styles.value}>{parseFloat(remision.devolucionPuerta).toFixed(2)} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Neto Fruta:</Text>
+                                <Text style={styles.value}>{parseFloat(remision.netoFrutaKg).toFixed(2)} kg</Text>
+                            </View>
+                        </View>
+                        {/* Sección de Selección */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Selección</Text>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Fecha de Selección:</Text>
+                                <Text style={styles.value}>{formatDate(remision.SeleccionRelacione?.Seleccion?.fechaSeleccion)}</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Magullado:</Text>
+                                <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.magullado} Kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Rajado:</Text>
+                                <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.rajado} Kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Botritis:</Text>
+                                <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.botritis} Kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Exportable:</Text>
+                                <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.exportable} Kg</Text>
+                            </View>
+                        </View>
                     </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Finca:</Text>
-                        <Text style={styles.value}>{remisionRelacion?.finca?.nombre}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Lote:</Text>
-                        <Text style={styles.value}>{remisionRelacion?.lote?.numero}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Bruto (kg):</Text>
-                        <Text style={styles.value}>{parseFloat(remision.brutoKg).toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Neto Canastas:</Text>
-                        <Text style={styles.value}>{parseFloat(remision.netoCanastas).toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Número de Canastas:</Text>
-                        <Text style={styles.value}>{remision.numeroCanastas}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Registro de Aplicación:</Text>
-                        <Text style={styles.value}>{remision.registroAplicacion}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Tipo de Fruta:</Text>
-                        <Text style={styles.value}>{remisionRelacion?.Tipofrutum?.nombre}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Devolución en Puerta:</Text>
-                        <Text style={styles.value}>{parseFloat(remision.devolucionPuerta).toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Neto Fruta:</Text>
-                        <Text style={styles.value}>{parseFloat(remision.netoFrutaKg).toFixed(2)} kg</Text>
+                    {/* Columna Derecha: Pérdida y Pérdida Exportable vs Empacado */}
+                    <View style={styles.columnRight}>
+                        {/* Sección de Pérdida */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Pérdida</Text>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Neto Ingreso:</Text>
+                                <Text style={styles.value}>{parseFloat(remision.netoFrutaKg).toFixed(2)} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Peso selección:</Text>
+                                <Text style={styles.value}>{totalEmpacado} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={[styles.label, { color: 'red' }]}>Pérdida:</Text>
+                                <Text style={[styles.value, { color: 'red' }]}>{perdidaTotal} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={[styles.label, { color: 'red' }]}>Porcentaje:</Text>
+                                <Text style={[styles.value, { color: 'red' }]}>{porcentajePerdida}%</Text>
+                            </View>
+                        </View>
+                        {/* Nueva Sección de Pérdida */}
+                        <View style={styles.section}>
+                            <Text style={styles.sectionTitle}>Pérdida Exportable vs Empacado</Text>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Exportable:</Text>
+                                <Text style={styles.value}>{kilosExportables.toFixed(2)} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={styles.label}>Empacado:</Text>
+                                <Text style={styles.value}>{sumaKilosEmpacados.toFixed(2)} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={[styles.label, { color: 'red' }]}>Pérdida:</Text>
+                                <Text style={[styles.value, { color: 'red' }]}>{nuevaPerdida} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={[styles.label, { color: 'red' }]}>Porcentaje:</Text>
+                                <Text style={[styles.value, { color: 'red' }]}>{porcentajeNuevaPerdida}%</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={[styles.label, { color: 'red' }]}>Nueva Pérdida Total:</Text>
+                                <Text style={[styles.value, { color: 'red' }]}>{nuevaPerdidaTotal} kg</Text>
+                            </View>
+                            <View style={styles.row}>
+                                <Text style={[styles.label, { color: 'red' }]}>Porcentaje Total Pérdida:</Text>
+                                <Text style={[styles.value, { color: 'red' }]}>{porcentajetotal}%</Text>
+                            </View>
+                        </View>
                     </View>
                 </View>
 
-                {/* Sección de Selección */}
+                {/* Sección de Embalaje (ancho completo) */}
                 <View style={styles.section}>
-                    <Text style={styles.subtitle}>Selección</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Fecha de Selección:</Text>
-                        <Text style={styles.value}>{formatDate(remision.fechaCosecha)}</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Magullado:</Text>
-                        <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.magullado} Kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Rajado:</Text>
-                        <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.rajado} Kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Botritis:</Text>
-                        <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.botritis} Kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Exportable:</Text>
-                        <Text style={styles.value}>{remision.SeleccionRelacione?.Seleccion?.exportable} Kg</Text>
-                    </View>
-                </View>
-
-                {/* Sección de Pérdida */}
-                <View style={styles.section}>
-                    <Text style={styles.subtitle}>Pérdida</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Neto Ingreso:</Text>
-                        <Text style={styles.value}>{parseFloat(remision.netoFrutaKg).toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Peso selección:</Text>
-                        <Text style={styles.value}>{totalEmpacado} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.label, { color: 'red' }]}>Pérdida:</Text>
-                        <Text style={[styles.value, { color: 'red' }]}>{perdidaTotal} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.label, { color: 'red' }]}>Porcentaje:</Text>
-                        <Text style={[styles.value, { color: 'red' }]}>{porcentajePerdida}%</Text>
-                    </View>
-                </View>
-
-                {/* Nueva Sección de Pérdida */}
-                <View style={styles.section}>
-                    <Text style={styles.subtitle}>Pérdida Exportable vs Empacado</Text>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Exportable:</Text>
-                        <Text style={styles.value}>{kilosExportables.toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={styles.label}>Empacado:</Text>
-                        <Text style={styles.value}>{sumaKilosEmpacados.toFixed(2)} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.label, { color: 'red' }]}>Pérdida:</Text>
-                        <Text style={[styles.value, { color: 'red' }]}>{nuevaPerdida} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.label, { color: 'red' }]}>Porcentaje:</Text>
-                        <Text style={[styles.value, { color: 'red' }]}>{porcentajeNuevaPerdida}%</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.label, { color: 'red' }]}>Nueva Pérdida Total:</Text>
-                        <Text style={[styles.value, { color: 'red' }]}>{nuevaPerdidaTotal} kg</Text>
-                    </View>
-                    <View style={styles.row}>
-                        <Text style={[styles.label, { color: 'red' }]}>Porcentaje Total Pérdida:</Text>
-                        <Text style={[styles.value, { color: 'red' }]}>{porcentajetotal}%</Text>
-                    </View>
-                </View>
-
-                {/* Sección de Embalaje */}
-                <View style={styles.section}>
-                    <Text style={styles.subtitle}>Embalaje</Text>
+                    <Text style={styles.sectionTitle}>Embalaje</Text>
                     <View style={styles.table}>
                         <View style={[styles.tableRow, styles.tableHeader]}>
                             <Text style={styles.tableCell}>Embarque</Text>
                             <Text style={styles.tableCell}>Estiba</Text>
                             <Text style={styles.tableCell}>Fecha Empaque</Text>
-                            <Text style={styles.tableCell}>Fecha Despacho</Text>
-                            <Text style={styles.tableCell}>N° Cajas</Text>
-                            <Text style={styles.tableCell}>Kg</Text>
+                            <Text style={styles.tableCell}>Presentación</Text>
+                            <Text style={styles.tableCell}>Tipo fruta</Text>
+                            <Text style={styles.tableCell}>Número de Cajas</Text>
+                            <Text style={styles.tableCell}>Kg Empacados</Text>
                         </View>
                         {remision.embalajes?.map((embalaje) => (
                             <View key={embalaje.id} style={styles.tableRow}>
                                 <Text style={styles.tableCell}>{embalaje.embarque?.numero}</Text>
                                 <Text style={styles.tableCell}>{embalaje.estiba}</Text>
                                 <Text style={styles.tableCell}>{formatDate(embalaje.fechaDeEmpaque)}</Text>
-                                <Text style={styles.tableCell}>{formatDate(embalaje.embarque?.fechaDespacho)}</Text>
+                                <Text style={styles.tableCell}>{embalaje?.presentacion?.nombre}</Text>
+                                <Text style={styles.tableCell}>{embalaje?.tipoPresentacion?.nombre}</Text>
                                 <Text style={styles.tableCell}>{embalaje.numeroDeCajas}</Text>
                                 <Text style={styles.tableCell}>{parseFloat(embalaje.kgEmpacado).toFixed(2)}</Text>
                             </View>
