@@ -129,18 +129,6 @@ const HojaVidaRemision = () => {
                                         <p className="font-medium">{remision.RemisionRelaciones?.[0]?.lote?.numero}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">Bruto (kg)</p>
-                                        <p className="font-medium">{parseFloat(remision.brutoKg).toFixed(2)} kg</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-600">Neto Canastas</p>
-                                        <p className="font-medium">{parseFloat(remision.netoCanastas).toFixed(2)} kg</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-600">Número de Canastas</p>
-                                        <p className="font-medium">{remision.numeroCanastas}</p>
-                                    </div>
-                                    <div>
                                         <p className="text-sm text-gray-600">Registro de Aplicación</p>
                                         <p className="font-medium">{remision.registroAplicacion}</p>
                                     </div>
@@ -152,6 +140,24 @@ const HojaVidaRemision = () => {
                                         <p className="text-sm text-gray-600">Registro ICA</p>
                                         <p className="font-medium">{remision.RemisionRelaciones?.[0]?.Certica?.numero}</p>
                                     </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">Global G.AP</p>
+                                        <p className="font-medium">{remision.RemisionRelaciones?.[0]?.productor?.GGNs[0]?.numero}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">Bruto (kg)</p>
+                                        <p className="font-medium">{parseFloat(remision.brutoKg).toFixed(2)} kg</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">Neto Canastas</p>
+                                        <p className="font-medium">{parseFloat(remision.netoCanastas).toFixed(2)} kg</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-gray-600">Número de Canastas</p>
+                                        <p className="font-medium">{remision.numeroCanastas}</p>
+                                    </div>
+                                    
+                                    
                                     <div>
                                         <p className="text-sm text-gray-600">Devolución en Puerta</p>
                                         <p className="font-medium">{parseFloat(remision.devolucionPuerta).toFixed(2)} kg</p>
