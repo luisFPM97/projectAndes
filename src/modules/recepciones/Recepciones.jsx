@@ -63,7 +63,7 @@ const Recepciones = () => {
                 getAllTipofrutas()
             ]);
             setRemisiones(remisionesData);
-            console.log('Remisiones cargadas:', remisionesData);
+            //console.log('Remisiones cargadas:', remisionesData);
             setProductores(productoresData);
             setFincas(fincasData);
             setLotes(lotesData);
@@ -182,7 +182,7 @@ const Recepciones = () => {
         );
     }
 
-    console.log('Remisiones filtradas/render:', filteredRemisiones);
+    //console.log('Remisiones filtradas/render:', filteredRemisiones);
 
     return (
         <div className="container mx-auto px-4 py-8">

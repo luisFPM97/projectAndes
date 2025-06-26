@@ -24,8 +24,10 @@ export const createRemision = async (remision) => {
 
 // Actualizar una remisión
 export const updateRemision = async (id, remision) => {
-
-    return await update(`/remisiones`, id, remision);
+    
+    const response = await api.put(`/remisiones/${id}`, remision)
+    console.log(response.data)
+    return response.data;
     
     
 };

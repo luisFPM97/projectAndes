@@ -52,9 +52,9 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
         if (formData.fincaId) {
             const lotesDeLaFinca = lotes.filter(l => l.fincaId === parseInt(formData.fincaId));
             setLotesFiltrados(lotesDeLaFinca);
-            console.log('Lotes recibidos como prop:', lotes);
-            console.log('fincaId seleccionado:', formData.fincaId);
-            console.log('Lotes filtrados para la finca:', lotesDeLaFinca);
+            //console.log('Lotes recibidos como prop:', lotes);
+            //console.log('fincaId seleccionado:', formData.fincaId);
+            //console.log('Lotes filtrados para la finca:', lotesDeLaFinca);
         } else {
             setLotesFiltrados([]);
         }
@@ -76,6 +76,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
         const year = d.getFullYear();
         const month = String(d.getMonth() + 1).padStart(2, '0');
         const day = String(d.getDate()).padStart(2, '0');
+        console.log(year + month + day)
         return `${year}-${month}-${day}`;
       };
 
@@ -115,9 +116,10 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
     const calcularDiaDelAnio = (fecha) => {
         const date = new Date(fecha);
         const start = new Date(date.getFullYear(), 0, 0);
-        const diff = date - start;
+        const diff = date - start - 1;
         const oneDay = 1000 * 60 * 60 * 24;
         const dayOfYear = Math.floor(diff / oneDay);
+        console.log(dayOfYear)
         return dayOfYear.toString().padStart(3, '0');
     };
 
@@ -216,7 +218,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
         );
     }
     
-    console.log('Render: fincaId', formData.fincaId, 'lotes:', lotes);
+    //console.log('Render: fincaId', formData.fincaId, 'lotes:', lotes);
     
     return (
         <div className="p-6">

@@ -190,7 +190,9 @@ const BalanceDeMasas = () => {
                                                     <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'GRANEL' ? emb.kgEmpacado : 0}</td>
                                                     <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'G-CON' ? emb.numeroDeCajas : 0}</td>
                                                     <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.tipoPresentacion?.nombre === 'G-CON' ? emb.kgEmpacado : 0}</td>
-                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.embarque?.Facturas[0]?.numero || 'Sin factura'}</td>
+                                                
+                                                    <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.embarque?.Factura?.numero || 'Sin factura'}</td>
+                                                
                                                     <td className={`px-4 py-2 ${emb.presentacion?.nombre === 'TROFI GGN CoC' ? 'bg-yellow-100' : ''}`}>{emb.embarque?.numero || ''}</td>
                                                 </tr>
                                             );
