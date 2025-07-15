@@ -367,7 +367,7 @@ const Recepciones = () => {
                                         Editar
                                     </button>
                                     <button
-                                    hidden
+                                        hidden
                                         onClick={() => handleDelete(remision.id)}
                                         className="text-red-500 hover:text-red-700"
                                     >

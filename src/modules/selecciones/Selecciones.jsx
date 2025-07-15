@@ -192,7 +192,7 @@ const Selecciones = () => {
                                                 Editar
                                             </button>
                                             <button
-                                            hidden
+                                                hidden
                                                 onClick={() => handleDelete(seleccion.id)}
                                                 className="text-red-600 hover:text-red-900"
                                             >
