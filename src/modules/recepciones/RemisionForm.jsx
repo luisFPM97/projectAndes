@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getRemisionById, createRemision, updateRemision } from '../../services/remisionService';
 
-const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lotes, certificaciones, tiposFruta, onSave, onCancel }) => {
+const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lotes, certificaciones, tiposFruta, onSave, onCancel, maxNumeroRemision }) => {
     const [formData, setFormData] = useState({
         numero: '',
         fechaCosecha: '',
@@ -37,6 +37,12 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
             console.log(fincaId)
         }
     }, [remisionId]);
+
+    useEffect(() => {
+        if (!remisionId && maxNumeroRemision) {
+            setFormData(prev => ({ ...prev, numero: maxNumeroRemision }));
+        }
+    }, [remisionId, maxNumeroRemision]);
 
     useEffect(() => {
         if (formData.productorId) {
@@ -251,7 +257,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             name="numero"
                             value={formData.numero}
                             onChange={handleChange}
-                            required
+                            
                             disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
@@ -266,7 +272,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.productorId}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione un productor</option>
@@ -287,7 +293,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.fincaId}
                             onChange={handleChange}
                             required
-                            disabled={!formData.productorId || !!remisionId}
+                            //disabled={!formData.productorId || !!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione una finca</option>
@@ -308,7 +314,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.loteId}
                             onChange={handleChange}
                             required
-                            disabled={!formData.fincaId}
+                            //disabled={!formData.fincaId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione un lote</option>
@@ -329,7 +335,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.certicaId}
                             onChange={handleChange}
                             required
-                            disabled={!formData.fincaId || !!remisionId}
+                            //disabled={!formData.fincaId || !!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione una certificación</option>
@@ -370,7 +376,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             type="date"
                             name="fechaCosecha"
                             value={formData.fechaCosecha}
-                            onChange={handleChange}
+                            //onChange={handleChange}
                             required
                             //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -385,7 +391,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             type="date"
                             name="fechaRecepcion"
                             value={formData.fechaRecepcion}
-                            onChange={handleChange}
+                            //onChange={handleChange}
                             required
                             //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"

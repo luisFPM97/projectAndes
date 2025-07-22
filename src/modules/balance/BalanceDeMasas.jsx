@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getAllRemisiones } from '../../services/remisionService';
 import { exportarBalance } from './ExportarBalanceExcel';
+import { exportarBalanceExceljs } from './ExportarBalanceExcelExceljs';
 
 const BalanceDeMasas = () => {
     const [remisiones, setRemisiones] = useState([]);
@@ -8,6 +9,150 @@ const BalanceDeMasas = () => {
     const [error, setError] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [selectedProductor, setSelectedProductor] = useState('');
+    const [selectedEmbarque, setSelectedEmbarque] = useState('');
+    const [selectedPresentacion, setSelectedPresentacion] = useState('');
+
+    // Obtener lista de productores únicos (con o sin GGN)
+    const productoresUnicos = React.useMemo(() => {
+        const productores = {};
+        remisiones.forEach(row => {
+            const productor = row.RemisionRelaciones?.[0]?.productor;
+            if (productor) {
+                const ggn = productor?.GGNs?.[0]?.numero;
+                productores[productor.nombre] = {
+                    nombre: productor.nombre,
+                    ggn: ggn || null
+                };
+            }
+        });
+        return Object.values(productores);
+    }, [remisiones]);
+
+    // Obtener lista de embarques únicos
+    const embarquesUnicos = React.useMemo(() => {
+        const embarques = {};
+        remisiones.forEach(row => {
+            const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
+            embalajes.forEach(emb => {
+                if (emb.embarque && emb.embarque.numero) {
+                    embarques[emb.embarque.numero] = {
+                        numero: emb.embarque.numero,
+                        // Puedes agregar más campos si quieres mostrar más info
+                    };
+                }
+            });
+        });
+        return Object.values(embarques);
+    }, [remisiones]);
+
+    // Obtener lista de presentaciones únicas
+    const presentacionesUnicas = React.useMemo(() => {
+        const presentaciones = {};
+        remisiones.forEach(row => {
+            const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
+            embalajes.forEach(emb => {
+                if (emb.presentacion && emb.presentacion.nombre) {
+                    presentaciones[emb.presentacion.nombre] = {
+                        nombre: emb.presentacion.nombre
+                    };
+                }
+            });
+        });
+        return Object.values(presentaciones);
+    }, [remisiones]);
+
+    // Filtrar remisiones por nombre de productor y embarque seleccionado
+    const remisionesFiltradas = React.useMemo(() => {
+        let filtradas = remisiones;
+        if (selectedProductor) {
+            filtradas = filtradas.filter(row => {
+                const productor = row.RemisionRelaciones?.[0]?.productor;
+                return productor && productor.nombre === selectedProductor;
+            });
+        }
+        if (selectedEmbarque) {
+            filtradas = filtradas.filter(row => {
+                const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
+                return embalajes.some(emb => emb.embarque && emb.embarque.numero === selectedEmbarque);
+            });
+        }
+        if (selectedPresentacion) {
+            filtradas = filtradas.filter(row => {
+                const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
+                return embalajes.some(emb => emb.presentacion && emb.presentacion.nombre === selectedPresentacion);
+            });
+        }
+        return filtradas;
+    }, [remisiones, selectedProductor, selectedEmbarque, selectedPresentacion]);
+
+    // Calcular totales
+    const totales = React.useMemo(() => {
+        let totalCajasExportar = 0;
+        let totalCajas12x100 = 0;
+        let totalKg12x100 = 0;
+        let totalCajasGranel = 0;
+        let totalKgGranel = 0;
+        let totalCajasGulupa = 0;
+        let totalKgGulupa = 0;
+        let totalCajas = 0;
+        let totalKg = 0;
+        let totalKgBruto = 0;
+        let totalKgNeto = 0;
+        let totalKgMagullada = 0;
+        let totalKgRajado = 0;
+        let totalKgBotritis = 0;
+        let totalKgExportable = 0;
+        remisionesFiltradas.forEach(row => {
+            const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
+            totalKgBruto += parseFloat(row.brutoKg) || 0;
+            totalKgNeto += parseFloat(row.netoFrutaKg) || 0;
+            totalKgMagullada += parseFloat(row.SeleccionRelacione?.Seleccion?.magullado) || 0;
+            totalKgRajado += parseFloat(row.SeleccionRelacione?.Seleccion?.rajado) || 0;
+            totalKgBotritis += parseFloat(row.SeleccionRelacione?.Seleccion?.botritis) || 0;
+            totalKgExportable += parseFloat(row.SeleccionRelacione?.Seleccion?.exportable) || 0;
+            embalajes.forEach(emb => {
+                // Cajas Exportar (todas las cajas)
+                totalCajasExportar += parseInt(emb.numeroDeCajas) || 0;
+                // 12 x 100
+                if (emb.tipoPresentacion?.nombre === '12 x 100') {
+                    totalCajas12x100 += parseInt(emb.numeroDeCajas) || 0;
+                    totalKg12x100 += parseFloat(emb.kgEmpacado) || 0;
+                }
+                // Granel
+                if (emb.tipoPresentacion?.nombre === 'GRANEL') {
+                    totalCajasGranel += parseInt(emb.numeroDeCajas) || 0;
+                    totalKgGranel += parseFloat(emb.kgEmpacado) || 0;
+                }
+                // Gulupa (G-CON)
+                if (emb.tipoPresentacion?.nombre === 'G-CON') {
+                    totalCajasGulupa += parseInt(emb.numeroDeCajas) || 0;
+                    totalKgGulupa += parseFloat(emb.kgEmpacado) || 0;
+                }
+                // Totales generales
+                totalCajas += parseInt(emb.numeroDeCajas) || 0;
+                totalKg += parseFloat(emb.kgEmpacado) || 0;
+            });
+        });
+        return {
+            registros: remisionesFiltradas.length,
+            totalCajasExportar,
+            totalCajas12x100,
+            totalKg12x100,
+            totalCajasGranel,
+            totalKgGranel,
+            totalCajasGulupa,
+            totalKgGulupa,
+            totalCajas,
+            totalKg,
+            totalKgBruto,
+            totalKgNeto,
+            totalKgMagullada,
+            totalKgRajado,
+            totalKgBotritis,
+            totalKgExportable
+        };
+    }, [remisionesFiltradas]);
 
     useEffect(() => {
         async function fetchRemisiones() {
@@ -58,14 +203,48 @@ const BalanceDeMasas = () => {
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-2xl font-bold mb-6">Balance de Masas</h1>
 
+            {/* Botón de exportación con exceljs */}
             <button
-                onClick={() => exportarBalance(remisiones)}
+                onClick={() => exportarBalanceExceljs(remisionesFiltradas)}
                 className="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded mb-4"
             >
                 Exportar a Excel
             </button>
 
+            {/* Filtro por productor y embarque */}
             <div className="mb-4 flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                <select
+                    value={selectedProductor}
+                    onChange={e => setSelectedProductor(e.target.value)}
+                    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">Todos los productores</option>
+                    {productoresUnicos.map(prod => (
+                        <option key={prod.nombre} value={prod.nombre}>
+                            {prod.nombre}{prod.ggn ? ` (GGN: ${prod.ggn})` : ''}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={selectedEmbarque}
+                    onChange={e => setSelectedEmbarque(e.target.value)}
+                    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">Todos los embarques</option>
+                    {embarquesUnicos.map(emb => (
+                        <option key={emb.numero} value={emb.numero}>{emb.numero}</option>
+                    ))}
+                </select>
+                <select
+                    value={selectedPresentacion}
+                    onChange={e => setSelectedPresentacion(e.target.value)}
+                    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="">Todas las presentaciones</option>
+                    {presentacionesUnicas.map(pres => (
+                        <option key={pres.nombre} value={pres.nombre}>{pres.nombre}</option>
+                    ))}
+                </select>
                 <input
                     type="date"
                     value={startDate}
@@ -126,7 +305,7 @@ const BalanceDeMasas = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {remisiones.map((row) => {
+                        {remisionesFiltradas.map((row) => {
                             const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
                             const rowSpan = embalajes.length > 0 ? embalajes.length : 1;
                             return (
@@ -233,6 +412,36 @@ const BalanceDeMasas = () => {
                                 </React.Fragment>
                             );
                         })}
+                        {/* Fila de totales */}
+                        <tr className="bg-gray-200 font-bold">
+                            <td className="px-4 py-2" colSpan={1}>Totales</td>
+                            <td className="px-4 py-2" colSpan={9}>Registros: {totales.registros}</td>
+                            <td className="px-4 py-2" colSpan={1}></td>
+                            <td className="px-4 py-2">{totales.totalKgBruto.toFixed(2)}</td>
+                            <td className="px-4 py-2">{totales.totalKgNeto.toFixed(2)}</td>
+                            <td className="px-4 py-2"></td>
+                            <td className="px-4 py-2"></td>
+                            <td className="px-4 py-2">{totales.totalKgMagullada.toFixed(2)}</td>
+                            <td className="px-4 py-2">{totales.totalKgRajado.toFixed(2)}</td>
+                            <td className="px-4 py-2">{totales.totalKgBotritis.toFixed(2)}</td>
+                            <td className="px-4 py-2">{totales.totalKgExportable.toFixed(2)}</td>
+                            <td className="px-4 py-2" colSpan={1}></td>
+                            <td className="px-4 py-2">{totales.totalCajasExportar}</td>
+                            <td className="px-4 py-2"></td>
+                            <td className="px-4 py-2">{totales.totalCajas12x100}</td>
+                            <td className="px-4 py-2">{totales.totalKg12x100.toFixed(2)}</td>
+                            <td className="px-4 py-2">{totales.totalCajasGranel}</td>
+                            <td className="px-4 py-2">{totales.totalKgGranel.toFixed(2)}</td>
+                            <td className="px-4 py-2">{totales.totalCajasGulupa}</td>
+                            <td className="px-4 py-2">{totales.totalKgGulupa.toFixed(2)}</td>
+                            <td className="px-4 py-2"></td>
+                            <td className="px-4 py-2"></td>
+                        </tr>
+                        {/* Fila de totales generales */}
+                        <tr className="bg-gray-100 font-bold">
+                            <td className="px-4 py-2" colSpan={21}>Total cajas: {totales.totalCajas} | Total kg: {totales.totalKg.toFixed(2)}</td>
+                            <td className="px-4 py-2" colSpan={8}></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

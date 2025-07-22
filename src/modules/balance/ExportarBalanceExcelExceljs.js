@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
 function formatNumber(num) {
@@ -6,25 +6,27 @@ function formatNumber(num) {
     return Number(num).toFixed(2).replace('.', ',');
 }
 
-// Estilos para celdas
-const styleHeader = { font: { bold: true }, fill: { fgColor: { rgb: 'D9D9D9' } } };
-const styleTotal = { font: { bold: true }, fill: { fgColor: { rgb: 'E5E5E5' } } };
-const styleTROFI = { fill: { fgColor: { rgb: 'FFFACD' } } }; // amarillo claro
-const styleGGN = { fill: { fgColor: { rgb: 'D9F9D9' } } }; // verde claro
-const styleDefault = { fill: { fgColor: { rgb: 'FFFFFF' } } };
-
-export function exportarBalance(remisiones) {
+export async function exportarBalanceExceljs(remisiones) {
     const headers = [
         'Fecha Recepción', 'Remisión', 'Registro de Aplicación', 'Productor', 'Especie', 'Predio', 'Registro ICA', 'GGN', 'Código', 'Trazabilidad',
         'Canastas', 'Kg Bruto', 'Kg Neto', 'Peso Canastas', 'Índice de Conversión', 'Kg Magullada', 'Kg Rajado', 'Kg Botritis', 'Kg Exportable', '% Pérdida',
         'Cajas Exportar', 'Presentación', 'Cajas 12 x 100', 'Kg 12 x 100', 'Cajas Granel', 'Kg Granel', 'Cajas Gulupa', 'Kg Gulupa', 'Factura', 'Embarque'
     ];
-    const rows = [];
-    const merges = [];
-    let currentRow = 1; // 0 es headers
-    // Para estilos
-    const styledRows = [];
+    const workbook = new ExcelJS.Workbook();
+    const ws = workbook.addWorksheet('Balance');
 
+    // Estilos
+    const styleHeader = { bold: true, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } } };
+    const styleTotal = { bold: true, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5E5E5' } } };
+    const styleTROFI = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFACD' } } };
+    const styleGGN = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9F9D9' } } };
+    const styleDefault = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFFFF' } } };
+
+    ws.addRow(headers);
+    ws.getRow(1).font = { bold: true };
+    ws.getRow(1).fill = styleHeader.fill;
+
+    let currentRow = 2;
     remisiones.forEach(row => {
         const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
         const rowSpan = embalajes.length > 0 ? embalajes.length : 1;
@@ -32,7 +34,6 @@ export function exportarBalance(remisiones) {
         if (embalajes.length > 0) {
             embalajes.forEach((emb, embIdx) => {
                 const isTROFI = emb.presentacion?.nombre === 'TROFI GGN CoC';
-                // Solo en la primera subfila, agrega los datos generales de la remisión
                 const base = embIdx === 0 ? [
                     row.fechaRecepcion ? new Date(row.fechaRecepcion).toLocaleDateString() : '',
                     row.numero,
@@ -68,7 +69,6 @@ export function exportarBalance(remisiones) {
                     })(),
                     embalajes.reduce((acc, emb) => acc + (parseInt(emb.numeroDeCajas) || 0), 0)
                 ] : Array(21).fill('');
-                // Subfila: datos de embalaje
                 const rowData = [
                     ...base,
                     emb.presentacion?.nombre || '',
@@ -81,29 +81,27 @@ export function exportarBalance(remisiones) {
                     emb.embarque?.Factura?.numero || 'Sin factura',
                     emb.embarque?.numero || ''
                 ];
-                rows.push(rowData);
-                // Estilos de la fila
-                const styleRow = [];
+                ws.addRow(rowData);
+                // Estilos
+                const excelRow = ws.getRow(currentRow);
                 for (let i = 0; i < rowData.length; i++) {
                     if (i < 21 && productorGGN) {
-                        styleRow.push(styleGGN);
+                        excelRow.getCell(i + 1).fill = styleGGN.fill;
                     } else if (i >= 21 && isTROFI) {
-                        styleRow.push(styleTROFI);
+                        excelRow.getCell(i + 1).fill = styleTROFI.fill;
                     } else {
-                        styleRow.push(styleDefault);
+                        excelRow.getCell(i + 1).fill = styleDefault.fill;
                     }
                 }
-                styledRows.push(styleRow);
+                currentRow++;
             });
-            // Agregar merges para columnas generales si hay más de 1 embalaje
+            // Merges para columnas generales
             if (rowSpan > 1) {
-                for (let col = 0; col < 21; col++) {
-                    merges.push({ s: { r: currentRow, c: col }, e: { r: currentRow + rowSpan - 1, c: col } });
+                for (let col = 1; col <= 21; col++) {
+                    ws.mergeCells(currentRow - rowSpan, col, currentRow - 1, col);
                 }
             }
-            currentRow += rowSpan;
         } else {
-            // Si no hay embalajes, una sola fila normal
             const rowData = [
                 row.fechaRecepcion ? new Date(row.fechaRecepcion).toLocaleDateString() : '',
                 row.numero,
@@ -127,18 +125,16 @@ export function exportarBalance(remisiones) {
                 (() => { const magullado = parseFloat(row.SeleccionRelacione?.Seleccion?.magullado) || 0; const rajado = parseFloat(row.SeleccionRelacione?.Seleccion?.rajado) || 0; const botritis = parseFloat(row.SeleccionRelacione?.Seleccion?.botritis) || 0; const neto = parseFloat(row.netoFrutaKg) || 0; if (neto === 0) return ''; return (((magullado + rajado + botritis) / neto) * 100).toFixed(2).replace('.', ',') + '%'; })(),
                 0, '', 0, 0, 0, 0, 0, 0, 'Sin factura', ''
             ];
-            rows.push(rowData);
-            // Estilos de la fila
-            const styleRow = [];
+            ws.addRow(rowData);
+            const excelRow = ws.getRow(currentRow);
             for (let i = 0; i < rowData.length; i++) {
                 if (i < 21 && productorGGN) {
-                    styleRow.push(styleGGN);
+                    excelRow.getCell(i + 1).fill = styleGGN.fill;
                 } else {
-                    styleRow.push(styleDefault);
+                    excelRow.getCell(i + 1).fill = styleDefault.fill;
                 }
             }
-            styledRows.push(styleRow);
-            currentRow += 1;
+            currentRow++;
         }
     });
     // Calcular totales
@@ -152,8 +148,20 @@ export function exportarBalance(remisiones) {
     let totalCajas = 0;
     let totalKg = 0;
     let registros = 0;
+    let totalKgBruto = 0;
+    let totalKgNeto = 0;
+    let totalKgMagullada = 0;
+    let totalKgRajado = 0;
+    let totalKgBotritis = 0;
+    let totalKgExportable = 0;
     remisiones.forEach(row => {
         const embalajes = Array.isArray(row.embalajes) ? row.embalajes : [];
+        totalKgBruto += parseFloat(row.brutoKg) || 0;
+        totalKgNeto += parseFloat(row.netoFrutaKg) || 0;
+        totalKgMagullada += parseFloat(row.SeleccionRelacione?.Seleccion?.magullado) || 0;
+        totalKgRajado += parseFloat(row.SeleccionRelacione?.Seleccion?.rajado) || 0;
+        totalKgBotritis += parseFloat(row.SeleccionRelacione?.Seleccion?.botritis) || 0;
+        totalKgExportable += parseFloat(row.SeleccionRelacione?.Seleccion?.exportable) || 0;
         if (embalajes.length > 0) {
             registros++;
             embalajes.forEach(emb => {
@@ -177,9 +185,20 @@ export function exportarBalance(remisiones) {
     });
     // Fila de totales por columna
     const filaTotales = [
-        'Totales', '', '', `Registros: ${registros}`, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '',
+        'Totales', '', '', `Registros: ${registros}`, '', '', '', '', '', '', '',
+        totalKgBruto.toFixed(2),
+        totalKgNeto.toFixed(2),
+        '', '',
+        totalKgMagullada.toFixed(2),
+        totalKgRajado.toFixed(2),
+        totalKgBotritis.toFixed(2),
+        totalKgExportable.toFixed(2),
+        '',
         totalCajasExportar, '', totalCajas12x100, formatNumber(totalKg12x100), totalCajasGranel, formatNumber(totalKgGranel), totalCajasGulupa, formatNumber(totalKgGulupa), '', ''
     ];
+    ws.addRow(filaTotales);
+    ws.getRow(ws.rowCount).font = { bold: true };
+    ws.getRow(ws.rowCount).fill = styleTotal.fill;
     // Fila de totales generales
     const filaTotalesGenerales = [
         `Total cajas: ${totalCajas} | Total kg: ${formatNumber(totalKg)}`
@@ -187,33 +206,11 @@ export function exportarBalance(remisiones) {
     while (filaTotalesGenerales.length < headers.length) {
         filaTotalesGenerales.push('');
     }
+    ws.addRow(filaTotalesGenerales);
+    ws.getRow(ws.rowCount).font = { bold: true };
+    ws.getRow(ws.rowCount).fill = styleTotal.fill;
 
-    // Construir hoja con estilos
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows, filaTotales, filaTotalesGenerales]);
-    ws['!merges'] = merges;
-
-    // Aplicar estilos a encabezado
-    for (let c = 0; c < headers.length; c++) {
-        const cell = ws[XLSX.utils.encode_cell({ r: 0, c })];
-        if (cell) cell.s = styleHeader;
-    }
-    // Aplicar estilos a filas de datos
-    for (let r = 0; r < rows.length; r++) {
-        for (let c = 0; c < headers.length; c++) {
-            const cell = ws[XLSX.utils.encode_cell({ r: r + 1, c })];
-            if (cell) cell.s = styledRows[r][c];
-        }
-    }
-    // Aplicar estilos a totales
-    for (let c = 0; c < headers.length; c++) {
-        const cellTot = ws[XLSX.utils.encode_cell({ r: rows.length + 1, c })];
-        if (cellTot) cellTot.s = styleTotal;
-        const cellTotGen = ws[XLSX.utils.encode_cell({ r: rows.length + 2, c })];
-        if (cellTotGen) cellTotGen.s = styleTotal;
-    }
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Balance');
-    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array', cellStyles: true });
-    saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'balance.xlsx');
+    // Descargar archivo
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), 'balance-exceljs.xlsx');
 } 

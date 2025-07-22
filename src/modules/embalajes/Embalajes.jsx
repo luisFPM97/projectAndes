@@ -170,7 +170,7 @@ const Embalajes = () => {
                                                 Editar
                                             </button>
                                             <button
-                                            hidden
+                                            
                                                 onClick={() => handleDelete(embalaje.id)}
                                                 className="text-red-600 hover:text-red-900"
                                             >
