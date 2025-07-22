@@ -392,11 +392,7 @@ const Recepciones = () => {
                             lotes={lotes}
                             certificaciones={certificaciones}
                             tiposFruta={tiposFruta}
-                            maxNumeroRemision={(() => {
-                                if (!remisiones.length) return 1;
-                                const max = Math.max(...remisiones.map(r => parseInt(r.numero) || 0));
-                                return max + 1;
-                            })()}
+                            remisiones={remisiones}
                             onSave={handleSave}
                             onCancel={() => {
                                 setShowForm(false);

@@ -8,6 +8,7 @@ const Selecciones = () => {
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [selectedSeleccionId, setSelectedSeleccionId] = useState(null);
+    const [filtroNumero, setFiltroNumero] = useState('');
 
     useEffect(() => {
         loadSelecciones();
@@ -54,6 +55,24 @@ const Selecciones = () => {
         setSelectedSeleccionId(null);
     };
 
+    // Filtrar y ordenar selecciones
+    const seleccionesFiltradas = seleccionesList
+        .filter(sel => {
+            const numeroRemision = sel.SeleccionRelaciones[0]?.Remision?.numero?.toString() || '';
+            return (
+                filtroNumero === '' || numeroRemision.includes(filtroNumero)
+            );
+        })
+        .sort((a, b) => b.id - a.id);
+
+    // Función utilitaria para formatear fechas en formato dd/mm/aaaa sin problemas de zona horaria
+    function formatearFecha(fechaStr) {
+        if (!fechaStr) return '';
+        // Extrae solo la parte de la fecha (YYYY-MM-DD)
+        const [anio, mes, dia] = fechaStr.slice(0, 10).split('-');
+        return `${dia}/${mes}/${anio}`;
+    }
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -72,6 +91,17 @@ const Selecciones = () => {
                 >
                     Nueva Selección
                 </button>
+            </div>
+
+            {/* Filtros */}
+            <div className="mb-4 flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+                <input
+                    type="text"
+                    placeholder="Filtrar por número de remisión"
+                    value={filtroNumero}
+                    onChange={e => setFiltroNumero(e.target.value)}
+                    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
             </div>
 
             {error && (
@@ -140,19 +170,19 @@ const Selecciones = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {seleccionesList.map((seleccion) => (
+                                {seleccionesFiltradas.map((seleccion) => (
                                     <tr key={seleccion.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {seleccion.SeleccionRelaciones[0].Remision.numero || 'Sin remisión'}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {new Date(seleccion.SeleccionRelaciones[0].Remision.fechaCosecha).toLocaleDateString()}
+                                            {formatearFecha(seleccion.SeleccionRelaciones[0].Remision.fechaCosecha)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {new Date(seleccion.SeleccionRelaciones[0].Remision.fechaRecepcion).toLocaleDateString()}
+                                            {formatearFecha(seleccion.SeleccionRelaciones[0].Remision.fechaRecepcion)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {new Date(seleccion.fechaSeleccion).toLocaleDateString()}
+                                            {formatearFecha(seleccion.fechaSeleccion)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {seleccion.SeleccionRelaciones[0].Remision.numeroCanastas}

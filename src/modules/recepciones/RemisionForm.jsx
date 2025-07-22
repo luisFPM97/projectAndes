@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getRemisionById, createRemision, updateRemision } from '../../services/remisionService';
 
-const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lotes, certificaciones, tiposFruta, onSave, onCancel, maxNumeroRemision }) => {
+const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lotes, certificaciones, tiposFruta, onSave, onCancel, remisiones }) => {
+    console.log(remisionEnv)
     const [formData, setFormData] = useState({
         numero: '',
         fechaCosecha: '',
@@ -17,7 +18,8 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
         loteId: '',
         certicaId: '',
         tipofrutaId: '',
-        trazabilidad: ''
+        trazabilidad: '',
+        trazabilidadId: ''
     });
     const [remision, setRemision] = useState()
     const [loading, setLoading] = useState(false);
@@ -39,10 +41,11 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
     }, [remisionId]);
 
     useEffect(() => {
-        if (!remisionId && maxNumeroRemision) {
-            setFormData(prev => ({ ...prev, numero: maxNumeroRemision }));
+        if (!remisionId && remisiones && remisiones.length > 0) {
+            const maxNumero = Math.max(...remisiones.map(r => parseInt(r.numero) || 0));
+            setFormData(prev => ({ ...prev, numero: String(maxNumero + 1) }));
         }
-    }, [remisionId, maxNumeroRemision]);
+    }, [remisionId, remisiones]);
 
     useEffect(() => {
         if (formData.productorId) {
@@ -201,8 +204,10 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
         try {
             setLoading(true);
             if (remisionId) {
-                await updateRemision(remisionId, formData);
                 console.log(formData)
+                console.log(remisionId + 1)
+                formData.trazabilidadId = remisionEnv.RemisionRelaciones[0].trazabilidadId
+                await updateRemision(remisionId, formData);
             } else {
                 console.log(formData)
                 await createRemision(formData);
@@ -376,7 +381,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             type="date"
                             name="fechaCosecha"
                             value={formData.fechaCosecha}
-                            //onChange={handleChange}
+                            onChange={handleChange}
                             required
                             //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -391,7 +396,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             type="date"
                             name="fechaRecepcion"
                             value={formData.fechaRecepcion}
-                            //onChange={handleChange}
+                            onChange={handleChange}
                             required
                             //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -456,7 +461,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.netoFrutaKg}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            //disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -499,7 +504,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             type="text"
                             name="trazabilidad"
                             value={formData.trazabilidad}
-                            readOnly
+                            
                             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
                         />
                     </div>

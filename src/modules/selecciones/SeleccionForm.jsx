@@ -16,6 +16,13 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
     const [recepcionSeleccionada, setRecepcionSeleccionada] = useState(null);
     const [remisiones, setRemisiones] = useState([]);
 
+    function formatearFecha(fechaStr) {
+        if (!fechaStr) return '';
+        // Extrae solo la parte de la fecha (YYYY-MM-DD)
+        const [anio, mes, dia] = fechaStr.slice(0, 10).split('-');
+        return `${dia}/${mes}/${anio}`;
+    }
+
     useEffect(() => {
         loadRemisiones();
     }, []);
@@ -189,11 +196,14 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
                             required
                         >
                             <option value="">Seleccione una remisión</option>
-                            {remisiones.map(remision => (
-                                <option key={remision.id} value={remision.id}>
-                                    {`Remisión #${remision.numero}`}
-                                </option>
-                            ))}
+                            {remisiones
+                                .slice() // Copia para no mutar el estado
+                                .sort((a, b) => b.id - a.id)
+                                .map(remision => (
+                                    <option key={remision.id} value={remision.id}>
+                                        {`Remisión #${remision.numero}`}
+                                    </option>
+                                ))}
                         </select>
                     </div>
 
@@ -221,12 +231,18 @@ const SeleccionForm = ({ seleccionId, onSave, onCancel }) => {
                                     <p className="font-medium">{recepcionSeleccionada.numero}</p>
                                 </div>
                                 <div>
+                                    <p className="text-sm text-gray-600">Productor:</p>
+                                    <p className="font-medium">{recepcionSeleccionada.RemisionRelaciones[0].productor.nombre}</p>
+                                </div>
+                                <div>
                                     <p className="text-sm text-gray-600">Fecha Cosecha:</p>
-                                    <p className="font-medium">{new Date(recepcionSeleccionada.fechaCosecha).toLocaleDateString()}</p>
+                                    <p className="font-medium">
+                                    {formatearFecha(recepcionSeleccionada.fechaCosecha)}
+                                    </p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">Fecha Recepción:</p>
-                                    <p className="font-medium">{new Date(recepcionSeleccionada.fechaRecepcion).toLocaleDateString()}</p>
+                                    <p className="font-medium">{formatearFecha(recepcionSeleccionada.fechaRecepcion)}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-600">N° Canastas:</p>
