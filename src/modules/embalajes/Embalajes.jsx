@@ -8,6 +8,7 @@ const Embalajes = () => {
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [selectedEmbalajeId, setSelectedEmbalajeId] = useState(null);
+    const [filtroEmbarque, setFiltroEmbarque] = useState('');
 
     useEffect(() => {
         loadData();
@@ -19,7 +20,9 @@ const Embalajes = () => {
             setError(null);
             const data = await getAllEmbalajes();
             if (Array.isArray(data)) {
-                setEmbalajesList(data);
+                // Ordenar por ID de mayor a menor
+                const sortedData = data.sort((a, b) => b.id - a.id);
+                setEmbalajesList(sortedData);
             } else {
                 setEmbalajesList([]);
                 setError('Los datos recibidos no tienen el formato esperado');
@@ -72,6 +75,11 @@ const Embalajes = () => {
         );
     }
 
+    const embalajeFiltrados = embalajesList.filter(embalaje => 
+        filtroEmbarque === '' || 
+        embalaje.embarque?.numero?.toString().toLowerCase().includes(filtroEmbarque.toLowerCase())
+    );
+
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
@@ -87,6 +95,18 @@ const Embalajes = () => {
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                     {error}
+                </div>
+            )}
+
+            {!showForm && (
+                <div className="mb-4">
+                    <input
+                        type="text"
+                        placeholder="Filtrar por número de embarque"
+                        value={filtroEmbarque}
+                        onChange={(e) => setFiltroEmbarque(e.target.value)}
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
                 </div>
             )}
 
@@ -132,7 +152,7 @@ const Embalajes = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {embalajesList.map((embalaje) => (
+                                {embalajeFiltrados.map((embalaje) => (
                                     <tr key={embalaje.id}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {embalaje.estiba}
@@ -188,4 +208,4 @@ const Embalajes = () => {
     );
 };
 
-export default Embalajes; 
+export default Embalajes;
