@@ -21,7 +21,7 @@ const Embalajes = () => {
             const data = await getAllEmbalajes();
             if (Array.isArray(data)) {
                 // Ordenar por ID de mayor a menor
-                const sortedData = data.sort((a, b) => b.id - a.id);
+                const sortedData = data.sort((a, b) => new Date(b.fechaDeEmpaque) - new Date(a.fechaDeEmpaque));
                 setEmbalajesList(sortedData);
             } else {
                 setEmbalajesList([]);
@@ -66,6 +66,13 @@ const Embalajes = () => {
         setShowForm(false);
         setSelectedEmbalajeId(null);
     };
+
+    function formatearFecha(fechaStr) {
+        if (!fechaStr) return '';
+        // Extrae solo la parte de la fecha (YYYY-MM-DD)
+        const [anio, mes, dia] = fechaStr.slice(0, 10).split('-');
+        return `${dia}/${mes}/${anio}`;
+    }
 
     if (loading) {
         return (
@@ -161,11 +168,7 @@ const Embalajes = () => {
                                             {embalaje.numeroDeCajas}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {new Date(embalaje.fechaDeEmpaque).toLocaleDateString('es-ES', {
-                                                year: 'numeric',
-                                                month: 'long',
-                                                day: 'numeric'
-                                            })}
+                                            {formatearFecha(embalaje.fechaDeEmpaque)}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {parseFloat(embalaje.kgEmpacado).toFixed(2)} kg
@@ -193,6 +196,7 @@ const Embalajes = () => {
                                             
                                                 onClick={() => handleDelete(embalaje.id)}
                                                 className="text-red-600 hover:text-red-900"
+                                                hidden
                                             >
                                                 Eliminar
                                             </button>

@@ -298,7 +298,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.fincaId}
                             onChange={handleChange}
                             required
-                            //disabled={!formData.productorId || !!remisionId}
+                            disabled={!formData.productorId || !!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione una finca</option>
@@ -319,7 +319,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.loteId}
                             onChange={handleChange}
                             required
-                            //disabled={!formData.fincaId}
+                           
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione un lote</option>
@@ -340,7 +340,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.certicaId}
                             onChange={handleChange}
                             required
-                            //disabled={!formData.fincaId || !!remisionId}
+                            disabled={!formData.fincaId || !!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="">Seleccione una certificación</option>
@@ -383,7 +383,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.fechaCosecha}
                             onChange={handleChange}
                             required
-                            //disabled={!!remisionId}
+                            disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -398,7 +398,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.fechaRecepcion}
                             onChange={handleChange}
                             required
-                            //disabled={!!remisionId}
+                            disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -413,7 +413,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.numeroCanastas}
                             onChange={handleChange}
                             required
-                            //disabled={!!remisionId}
+                            disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -429,7 +429,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.netoCanastas}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            disabled
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -445,7 +445,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.brutoKg}
                             onChange={handleChange}
                             required
-                            disabled={!!remisionId}
+                            disabled
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
@@ -461,7 +461,7 @@ const RemisionForm = ({remisionEnv, fincaId, remisionId, productores, fincas, lo
                             value={formData.netoFrutaKg}
                             onChange={handleChange}
                             required
-                            //disabled={!!remisionId}
+                            disabled={!!remisionId}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>

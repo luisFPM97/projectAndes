@@ -111,6 +111,13 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
         }
     };
 
+    function formatearFecha(fechaStr) {
+        if (!fechaStr) return '';
+        // Extrae solo la parte de la fecha (YYYY-MM-DD)
+        const [anio, mes, dia] = fechaStr.slice(0, 10).split('-');
+        return `${dia}/${mes}/${anio}`;
+    }
+
     // Calcular el valor de kgEmpacado en cada render
     const tipoSeleccionado = tiposPresentacion.find(t => t.id === parseInt(formData.tipoPresentacionId));
     const pesoTipo = tipoSeleccionado ? parseFloat(tipoSeleccionado.kg) : 0;
@@ -199,7 +206,13 @@ const EmbalajeForm = ({ embalajeId, onSave, onCancel }) => {
                             <option value="">Seleccione una remisión</option>
                             {remisiones.map((remision) => (
                                 <option key={remision.id} value={remision.id}>
-                                    {remision.numero}
+                                    {remision.numero} 
+                                    
+                                        - fecha seleccion: 
+                                        {
+                                            formatearFecha(remision.SeleccionRelacione.Seleccion.fechaSeleccion)
+                                        }
+                                    
                                 </option>
                             ))}
                         </select>

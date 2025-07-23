@@ -40,7 +40,6 @@ const Productores = () => {
 
     useEffect(() => {
         loadData();
-        console.log(lotes)
     }, []);
 
     const loadData = async () => {

@@ -17,7 +17,7 @@ export const Sidebar = () => {
   };
 
   const menuItems = [
-    //{ name: 'Dashboard', path: '/dashboard', icon: <Home size={20} /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <Home size={20} /> },
     { name: 'Productores', path: '/productores', icon: <Users size={20} /> },
     //{ name: 'Fincas', path: '/fincas', icon: <Landmark size={20} /> },
     //{ name: 'Lotes', path: '/lotes', icon: <Map size={20} /> },

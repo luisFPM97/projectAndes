@@ -1,17 +1,56 @@
 import { Users, Landmark, Map, Apple, FileCheck, Package, Truck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
-import { productores } from '../data/productores';
-import { fincas } from '../data/fincas';
-import { lotes } from '../data/lotes';
-import { frutas } from '../data/frutas';
-import { recepcion } from '../data/recepcion';
-import { embalaje } from '../data/embalaje';
-import { embarque } from '../data/embarque';
-import GGN from '../modules/ggn/GGN';
+import { getAll } from '../services/productorService';
+import { useEffect, useState } from 'react';
+import { getAllFincas } from '../services/fincaService';
+import { getAllLotes } from '../services/loteService';
+import { getAllTipofrutas } from '../services/tipofrutaService';
+import { getAllRemisiones } from '../services/remisionService';
+import { getAllEmbalajes } from '../services/embalajeService';
+import { getAllEmbarques } from '../services/embarqueService';
 
 export const Dashboard = () => {
   const { currentUser } = useAuth();
+  const [productores, setProductores] = useState([]);
+  const [fincas, setFincas] = useState([]);
+  const [lotes, setLotes] = useState([]);
+  const [frutas, setFrutas] = useState([]);
+  const [recepcion, setRecepcion] = useState([]);
+  const [embalaje, setEmbalaje] = useState([]);
+  const [embarque, setEmbarque] = useState([]);
+  useEffect(() => {
+      loadData();
+      console.log(embarque)
+  }, []);
+
+  const loadData = async () => {
+      try {
+          const [productoresData, fincasData, lotesData, frutasData, recepcionData, embalajeData, embarqueData] = await Promise.all([
+              getAll(),
+              getAllFincas(),
+              getAllLotes(),
+              getAllTipofrutas(),
+              getAllRemisiones(),
+              getAllEmbalajes(),
+              getAllEmbarques(),
+          ]);
+          setProductores(productoresData);
+          setFincas(fincasData);
+          setLotes(lotesData)
+          setFrutas(frutasData)
+          setRecepcion(recepcionData.sort((a, b)=> (b.numero) - (a.numero)))
+          setEmbalaje(embalajeData)
+          setEmbarque(
+            embarqueData.sort((a, b) => new Date(b.numero) - new Date(a.numero))
+          )
+      } catch (err) {
+          setError('Error al cargar los datos');
+          console.error('Error:', err);
+      } finally {
+
+      }
+  };
 
   const stats = [
     {
@@ -102,9 +141,9 @@ export const Dashboard = () => {
                       <FileCheck className="text-green-600" size={20} />
                     </div>
                     <div>
-                      <p className="font-medium">{finca?.nombre || 'Finca desconocida'}</p>
+                      <p className="font-medium">{item.RemisionRelaciones[0].productor.nombre || 'Finca desconocida'}</p>
                       <p className="text-sm text-gray-600">
-                        {new Date(item.fecha).toLocaleDateString()} - {item.cantidad} {item.unidad}
+                        {new Date(item.fechaRecepcion).toLocaleDateString()} - {item.cantidad} {item.unidad}
                       </p>
                     </div>
                   </div>
@@ -128,7 +167,7 @@ export const Dashboard = () => {
                   <div>
                     <p className="font-medium">{item.destino}</p>
                     <p className="text-sm text-gray-600">
-                      {new Date(item.fecha).toLocaleDateString()} - {item.cantidad} unidades
+                      {new Date(item.fechaDespacho).toLocaleDateString()} - {item.numero}
                     </p>
                   </div>
                 </div>
