@@ -610,7 +610,7 @@ const Productores = () => {
                                         Ver
                                     </button>
                                     <button
-                                    hidden
+                                        hidden
                                         onClick={() => {
                                             setSelectedProductorId(productor.id);
                                             setShowForm(true);
